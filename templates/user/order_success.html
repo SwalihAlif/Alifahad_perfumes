@@ -1,0 +1,33 @@
+{% extends 'user/base.html' %}
+
+{% block content %}
+
+<br><br>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6 text-center">
+                <!-- Success Message -->
+                <div class="alert alert-success" role="alert">
+                    <h4 class="alert-heading">Order Placed Successfully!</h4>
+                    <p>Your order has been placed successfully. Thank you for shopping with us!</p>
+                </div>
+
+                <!-- Last Order Details -->
+                <div class="mb-4">
+                    <h5>Order Details</h5>
+                    <p><strong>Order Number:</strong> {{ last_order.serial_number }}</p>
+                    <p><strong>Order Date:</strong> {{ last_order.order_date|date:"d M Y, H:i" }}</p>
+                    <p><strong>Total Amount:</strong> ₹{{ last_order.total_amount }}</p>
+                </div>
+
+                <!-- Buttons for Continue Shopping and View All Orders -->
+                <div>
+                    <a href="{% url 'home' %}" class="btn btn-primary btn-lg mr-2">Continue Shopping</a>
+                    <a href="{% url 'order:all_orders' %}" class="btn btn-secondary btn-lg">View All Orders</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br><br>
+{% endblock %}
+

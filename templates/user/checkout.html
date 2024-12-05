@@ -1,0 +1,272 @@
+{% extends 'user/base.html' %}
+{% load static %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .checkout-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .checkout-left, .checkout-right {
+            flex: 1 1 45%;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        h2 {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .address-item, .payment-methods div {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background: #fff;
+            cursor: pointer;
+            transition: 0.3s ease-in-out;
+        }
+
+        .address-item:hover, .payment-methods div:hover {
+            border-color: #007bff;
+            background-color: #e9f4ff;
+        }
+
+        .order-summary table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .order-summary table th, .order-summary table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .order-summary table th {
+            background-color: #f1f1f1;
+            font-weight: bold;
+        }
+
+        .coupon-section {
+            display: flex;
+            margin-bottom: 15px;
+        }
+
+        .coupon-input {
+            flex-grow: 1;
+            padding: 10px;
+            margin-right: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .coupon-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .coupon-btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s ease-in-out;
+        }
+
+        .btn-apply {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-apply:hover {
+            background-color: #218838;
+        }
+
+        .btn-remove {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-remove:hover {
+            background-color: #c82333;
+        }
+
+        #place-order {
+            width: 100%;
+            padding: 15px;
+            margin-top: 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        #place-order:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">Checkout</h1>
+        <form method="POST" action="{% url 'user:checkout' %}">
+            {% csrf_token %}
+            <div class="checkout-container">
+                <div class="checkout-left">
+                    <h2>Shipping Address</h2>
+                    {% if user_addresses %}
+                        {% for address in user_addresses %}
+                            <div class="address-item">
+                                <input type="radio" name="address" id="address-{{ address.id }}" value="{{ address.id }}">
+                                <label for="address-{{ address.id }}">
+                                    <strong>{{ address.full_name }}</strong><br>
+                                    {{ address.accessible }}, {{ address.area }}, {{ address.city }}<br>
+                                    {{ address.state }} - {{ address.pincode }}<br>
+                                    Phone: {{ address.phone_no }}
+                                </label>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p>No addresses available. <a href="{% url 'add_address' %}">Add a new address</a></p>
+                    {% endif %}
+                </div>
+                <div class="checkout-right">
+                    <h2>Payment Method</h2>
+                    <div class="payment-methods">
+                        <div>
+                            <input type="radio" id="payment-cod" name="payment_method" value="COD">
+                            <label for="payment-cod">Cash on Delivery</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="payment-online" name="payment_method" value="Online">
+                            <label for="payment-online">Online Payment</label>
+                        </div>
+                    </div>
+                    <h2>Order Summary</h2>
+                    <div class="order-summary">
+                        <div class="coupon-section">
+                            <input type="text" name="coupon_code" class="coupon-input" placeholder="Enter coupon code">
+                            <div class="coupon-buttons">
+                                <button type="button" class="coupon-btn btn-apply">Apply</button>
+                                <button type="button" class="coupon-btn btn-remove">Remove</button>
+                            </div>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Quantity</th>
+                                    <th>Price</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in cart_items %}
+                                    <tr>
+                                        <td>{{ item.variant.product.name }}</td>
+                                        <td>{{ item.quantity }}</td>
+                                        <td>₹{{ item.sub_total }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="2">Shipping</td>
+                                    <td>₹{{ shipping }}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2"><strong>Grand Total</strong></td>
+                                    <td>₹{{ grand_total }}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <button id="place-order" type="submit">Place Order</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</body>
+
+<script>
+    $(document).ready(function() {
+    $('.btn-apply').on('click', function() {
+        var couponCode = $('.coupon-input').val();
+        
+        $.ajax({
+            url: '{% url "apply_coupon" %}',
+            type: 'POST',
+            data: {
+                'coupon_code': couponCode,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Coupon Applied',
+                    text: response.message
+                });
+                
+                // Update total in order summary
+                $('.grand-total').text('₹' + response.total);
+            },
+            error: function(xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Coupon Error',
+                    text: xhr.responseJSON.message
+                });
+            }
+        });
+    });
+
+    $('.btn-remove').on('click', function() {
+        $.ajax({
+            url: '{% url "remove_coupon" %}',
+            type: 'POST',
+            data: {
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Coupon Removed',
+                    text: response.message
+                });
+                
+                // Reset total in order summary
+                $('.grand-total').text('₹' + response.total);
+                $('.coupon-input').val('');
+            },
+            error: function(xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: xhr.responseJSON.message
+                });
+            }
+        });
+    });
+});
+</script>
+</html>
+{% endblock %}

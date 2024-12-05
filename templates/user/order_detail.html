@@ -1,0 +1,105 @@
+{% extends 'user/base.html' %}
+
+{% block content %}
+    <style>
+        .order-container {
+            margin-top: 5rem;
+        }
+
+        .order-header {
+            color: brown;
+        }
+
+        .order-details p {
+            color: green;
+        }
+
+        .order-items-heading {
+            display: flex;
+            justify-content: center;
+            color: blue;
+        }
+
+        .order-image img {
+            width: 60px;
+            height: auto;
+        }
+
+        .table {
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .table {
+                font-size: 0.9rem;
+            }
+
+            .btn {
+                font-size: 0.8rem;
+                padding: 0.5rem;
+            }
+
+            .order-items-heading {
+                font-size: 1.2rem;
+            }
+
+            .order-header {
+                font-size: 1.5rem;
+            }
+
+            .order-details p {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+    <br>
+    <div class="container order-container">
+        <h2 class="order-header">Order Details (Order Number: {{ order.serial_number }})</h2>
+        <br>
+        <div class="order-details">
+            <p><strong>Order Date:</strong> {{ order.order_date|date:"d M Y, H:i" }}</p>
+            <p><strong>Total Amount:</strong> ₹{{ order.total_amount }}</p>
+            <p><strong>Payment Method:</strong> {{ order.payment_method }}</p>
+        </div>
+        
+        <br><br>
+        <h3 class="order-items-heading">Order Items</h3>
+        <br>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Image</th>
+                    <th>Size</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order_item %}
+                    <tr>
+                        <td>{{ item.product_added }}</td>
+                        <td class="order-image">
+                            <img src="{{ item.product_added.product.image_1.url }}" alt="IMG" width="50">
+                        </td>
+                        <td>{{ item.size }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>₹{{ item.final_product_price }}</td>
+                        <td>{{ item.status }}</td>
+                    </tr>
+                
+            </tbody>
+        </table>
+
+        {% if item.status != 'Cancelled' %}
+            <a href="{% url 'order:cancel_order' order.serial_number %}" class="btn btn-danger">Cancel Order</a>
+        {% else %}
+            <a href="{% url 'order:all_orders' %}" class="btn btn-primary">Go back</a>
+        {% endif %}
+        {% endfor %}
+    </div>
+    <br><br>
+{% endblock %}
+

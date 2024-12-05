@@ -1,0 +1,64 @@
+{% extends 'user/base.html' %}
+{% block content %}
+<section class="sec-product-detail bg0 p-t-65 p-b-60">
+    <div class="container">
+        <div class="row">
+            <!-- Product Images -->
+            <div class="col-md-6">
+                <div class="slick-carousel">
+                    <img src="{{ product.image_1.url }}" alt="Product Image">
+                    {% if product.image_2 %}
+                    <img src="{{ product.image_2.url }}" alt="Product Image">
+                    {% endif %}
+                    {% if product.image_3 %}
+                    <img src="{{ product.image_3.url }}" alt="Product Image">
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Product Details -->
+            <div class="col-md-6">
+                <h1>{{ product.product_name }}</h1>
+                <p>{{ product.description }}</p>
+                <p>Category: {{ product.category.name }}</p>
+                <h3>Price: ₹<span id="variant-price"></span></h3>
+
+                <!-- Variant Selector -->
+                <form method="post" action="{% url 'user:add_to_cart' %}">
+                    {% csrf_token %}
+                    <label for="variant">Select Variant:</label>
+                    <select id="variant" name="variant_id" class="form-control" required onchange="updatePrice()">
+                        {% for variant in product.variants.all %}
+                        <option value="{{ variant.id }}" 
+                                data-price="{{ variant.product_price_after }}" 
+                                data-stock="{{ variant.stock }}">
+                            {{ variant.size }} - ₹{{ variant.product_price_after }}
+                        </option>
+                        {% endfor %}
+                    </select>
+
+                    <!-- Quantity Selector -->
+                    <label for="quantity">Quantity:</label>
+                    <input type="number" id="quantity" name="quantity" class="form-control" value="1" min="1" max="{{ product.variants.first.stock }}" required>
+
+                    <button type="submit" class="btn btn-primary mt-3">Add to Cart</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    function updatePrice() {
+        const variantSelect = document.getElementById("variant");
+        const selectedOption = variantSelect.options[variantSelect.selectedIndex];
+        const price = selectedOption.getAttribute("data-price");
+        const stock = selectedOption.getAttribute("data-stock");
+        
+        document.getElementById("variant-price").innerText = price;
+        document.getElementById("quantity").max = stock;
+    }
+
+    document.addEventListener("DOMContentLoaded", updatePrice);
+</script>
+{% endblock %}

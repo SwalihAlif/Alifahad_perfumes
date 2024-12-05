@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wishlist</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="container my-5">
+    <h2 class="text-center mb-4">My Wishlist</h2>
+
+    <!-- Wishlist Items -->
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Single Wishlist Item -->
+            <div class="card mb-3">
+                <div class="row no-gutters align-items-center">
+                    <div class="col-md-4">
+                        <img src="https://via.placeholder.com/150" class="card-img" alt="Product Image">
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title">Product Name</h5>
+                            <p class="card-text">Price: $100.00</p>
+                            <button class="btn btn-primary btn-sm">Add to Cart</button>
+                            <button class="btn btn-danger btn-sm">Remove from Wishlist</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- End of Single Wishlist Item -->
+
+            <!-- Repeat the above "Single Wishlist Item" div for more items -->
+        </div>
+        
+        <!-- Wishlist Summary (Optional) -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Wishlist Summary</h5>
+                    <p>Items: 3</p>
+                    <p>Total Potential Savings: $30.00</p>
+                    <a href="#" class="btn btn-success btn-block">Shop All Wishlist Items</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS and dependencies -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.4.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

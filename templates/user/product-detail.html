@@ -1,0 +1,144 @@
+{% extends 'user/base.html' %}
+{% load static %}
+	
+
+{% block content %} 
+
+
+	
+	<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ product.product_name }}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <!-- Additional CSS for Slick Carousel -->
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css"/>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css"/>
+
+    <!-- SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    
+    {% block main_content %}
+    
+    {% endblock %}
+<section class="sec-product-detail bg0 p-t-65 p-b-60">
+  <br><br>
+  <div class="container">
+      <div class="row">
+          <div class="col-md-6 col-lg-7 p-b-30">
+              <div class="p-l-25 p-r-30 p-lr-0-lg">
+                  <div class="wrap-slick3 flex-sb flex-w">
+                      <div class="wrap-slick3-dots"></div>
+                      <div class="wrap-slick3-arrows flex-sb-m flex-w"></div>
+
+                      <div class="slick3 gallery-lb">
+                          <div class="item-slick3" data-thumb="{{ product.image_1.url }}">
+                              <div class="wrap-pic-w pos-relative">
+                                  <img src="{{ product.image_1.url }}" alt="IMG-PRODUCT">
+                                  <a class="flex-c-m size-108 how-pos1 bor0 fs-16 cl10 bg0 hov-btn3 trans-04" href="{{ product.image_1.url }}">
+                                      <i class="fa fa-expand"></i>
+                                  </a>
+                              </div>
+                          </div>
+
+                          <div class="item-slick3" data-thumb="{{ product.image_2.url }}">
+                              <div class="wrap-pic-w pos-relative">
+                                  <img src="{{ product.image_2.url }}" alt="IMG-PRODUCT">
+                                  <a class="flex-c-m size-108 how-pos1 bor0 fs-16 cl10 bg0 hov-btn3 trans-04" href="{{ product.image_2.url }}">
+                                      <i class="fa fa-expand"></i>
+                                  </a>
+                              </div>
+                          </div>
+
+                          <div class="item-slick3" data-thumb="{{ product.image_3.url }}">
+                              <div class="wrap-pic-w pos-relative">
+                                  <img src="{{ product.image_3.url }}" alt="IMG-PRODUCT">
+                                  <a class="flex-c-m size-108 how-pos1 bor0 fs-16 cl10 bg0 hov-btn3 trans-04" href="{{ product.image_3.url }}">
+                                      <i class="fa fa-expand"></i>
+                                  </a>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+          <!-- Product Details Section -->
+          <div class="col-md-6 col-lg-5 p-b-30">
+              <div class="p-r-50 p-t-5 p-lr-0-lg">
+                  <h4 class="mtext-105 cl2 js-name-detail p-b-14">
+                      {{ product.product_name }}
+                  </h4>
+                  <span class="mtext-106 cl2">
+                      ₹<span id="variant-price">{{ product.variants.first.price }}</span>
+                  </span>
+                  <p class="stext-102 cl3 p-t-23">
+                      {{ product.description }}
+                  </p>
+                  
+                   <!-- Variant Selector -->
+                <form method="post" action="{% url 'user:add_to_cart' %}">
+                    {% csrf_token %}
+                    <label for="variant">Select Variant:</label>
+                    <select id="variant" name="variant_id" class="form-control" required onchange="updatePrice()">
+                        {% for variant in product.variants.all %}
+                        <option value="{{ variant.id }}" 
+                                data-price="{{ variant.product_price_after }}" 
+                                data-stock="{{ variant.stock }}">
+                            {{ variant.size }} - ₹{{ variant.product_price_after }} - Stock({{ variant.stock }})
+                        </option>
+                        
+                        {% endfor %}
+                    </select>
+
+                    <!-- Quantity Selector -->
+                    <label for="quantity">Quantity:</label>
+                    <input type="number" id="quantity" name="quantity" class="form-control" value="1" min="1" max="{{ product.variants.first.stock }}" required>
+
+                    <button type="submit" class="btn btn-primary mt-3">Add to Cart</button>
+                </form>
+              </div>
+          </div>
+      </div>
+  </div>
+</section>
+
+<script>
+    function updatePrice() {
+        const variantSelect = document.getElementById("variant");
+        const selectedOption = variantSelect.options[variantSelect.selectedIndex];
+        const price = selectedOption.getAttribute("data-price");
+        const stock = selectedOption.getAttribute("data-stock");
+        
+        document.getElementById("variant-price").innerText = price;
+        document.getElementById("quantity").max = stock;
+    }
+
+    document.addEventListener("DOMContentLoaded", updatePrice);
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        {% if messages %}
+            {% for message in messages %}
+                Swal.fire({
+                    icon: "{% if message.tags == 'success' %}success{% elif message.tags == 'error' %}error{% elif message.tags == 'warning' %}warning{% else %}info{% endif %}",
+                    title: "{{ message }}",
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            {% endfor %}
+        {% endif %}
+    });
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+</html>
+
+{% endblock %}

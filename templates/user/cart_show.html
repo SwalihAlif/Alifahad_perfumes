@@ -1,0 +1,144 @@
+{% extends 'user/base.html' %}
+{% load static %}
+
+{% block content %}
+<br><br><br>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 style="display: flex; justify-content: center;" class="mb-4">Shopping Cart</h1>
+        <br>
+
+        {% if error %}
+            <div class="alert alert-danger">{{ error }}</div>
+        {% endif %}
+
+        {% if cart_items %}
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Subtotal</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                    <tr id="cart-item-{{ item.id }}">
+                        <!-- Display product image -->
+                        <td>
+                            <img src="{{ item.variant.product.image_1.url }}" 
+                                 alt="{{ item.variant.product.product_name }}" 
+                                 class="img-thumbnail" 
+                                 style="width: 80px; height: 80px;">
+                        </td>
+                        <td>{{ item.variant.product.product_name }}</td>
+                        <td>${{ item.variant.product_price_after }}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-secondary update-quantity" 
+                                    data-action="decrement" 
+                                    data-item-id="{{ item.id }}">-</button>
+                            <span class="mx-2" id="quantity-{{ item.id }}">{{ item.quantity }}</span>
+                            <button class="btn btn-sm btn-outline-secondary update-quantity" 
+                                    data-action="increment" 
+                                    data-item-id="{{ item.id }}">+</button>
+                        </td>
+                        <td id="subtotal-{{ item.id }}">${{ item.sub_total }}</td>
+                        <td>
+                            <button class="btn btn-danger btn-sm delete-item" 
+                                    data-item-id="{{ item.id }}">Remove</button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+
+            <div class="row">
+                <div class="col-md-6">
+                    <h4>Summary</h4>
+                    <p>Subtotal: $<span id="cart-subtotal">{{ cart.total_amount_without_coupon }}</span></p>
+                    <p>Shipping: $<span id="cart-shipping">{{ shipping }}</span></p>
+                    <h4>Total: $<span id="cart-total">{{ cart.total_amount }}</span></h4>
+                </div>
+                <div class="col-md-6 text-end">
+                    <a href="{% url 'user:checkout' %}" class="btn btn-primary">Proceed to Checkout</a>
+                </div>
+            </div>
+        {% else %}
+            <div class="alert alert-info">Your cart is empty.</div>
+        {% endif %}
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            // Update quantity
+            $('.update-quantity').click(function () {
+                const action = $(this).data('action');
+                const itemId = $(this).data('item-id');
+
+                $.ajax({
+                    url: "{% url 'user:update_cart_item_quantity' %}",
+                    method: "POST",
+                    data: {
+                        csrfmiddlewaretoken: "{{ csrf_token }}",
+                        cart_item_id: itemId,
+                        action: action
+                    },
+                    success: function (response) {
+                        $('#quantity-' + itemId).text(response.quantity);
+                        $('#subtotal-' + itemId).text('$' + response.sub_total);
+                        $('#cart-subtotal').text(response.total_amount - response.shipping);
+                        $('#cart-shipping').text(response.shipping);
+                        $('#cart-total').text(response.total_amount);
+                    },
+                    error: function (xhr) {
+                        alert(xhr.responseJSON.error);
+                    }
+                });
+            });
+
+            // Remove item
+            $('.delete-item').click(function () {
+                const itemId = $(this).data('item-id');
+
+                $.ajax({
+                    url: "{% url 'user:remove_cart_item' %}",
+                    method: "POST",
+                    data: {
+                        csrfmiddlewaretoken: "{{ csrf_token }}",
+                        cart_item_id: itemId,
+                    },
+                    success: function (response) {
+                        $('#cart-item-' + itemId).remove(); // Remove the item from the table
+                        $('#cart-subtotal').text(response.total_amount - response.shipping);
+                        $('#cart-shipping').text(response.shipping);
+                        $('#cart-total').text(response.total_amount);
+
+                        if (response.total_amount === 0) {
+                            location.reload(); // Reload the page if cart is empty
+                        }
+                    },
+                    error: function (xhr) {
+                        alert(xhr.responseJSON.error);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+
+{% endblock %}

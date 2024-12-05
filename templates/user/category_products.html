@@ -1,0 +1,24 @@
+{% extends 'user/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container p-t-80 p-b-50">
+    <br><br><br>
+    <h2 class="text-center">{{ category.category_name }}</h2>
+    <br><br>
+    <div class="row">
+        {% for product in products %}
+        <div class="col-md-3 p-b-30">
+            <div class="product-item">
+                <img src="{{ product.image_1.url }}" alt="{{ product.name }}" class="img-fluid">
+                <h5 class="text-center">{{ product.name }}</h5>
+                <p class="text-center">{{ product.price }} USD</p>
+                <a href="{% url 'product_details' product.id %}" class="btn btn-primary btn-block">View Details</a>
+            </div>
+        </div>
+        {% empty %}
+        <p class="text-center">No products available in this category.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,51 @@
+# Python bytecode files
+*.pyc
+*.pyo
+__pycache__/
+
+# Django specific
+*.log
+*.pot
+*.pyc
+*.db
+*.sqlite3
+*.sqlite3-journal
+db.sqlite3
+media/
+static/
+staticfiles/
+
+# Virtual environment
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# IDEs and Editors
+.idea/
+.vscode/
+*.swp
+
+# Django migration files
+*.log
+*.bak
+*.sql
+
+# Configuration and Secret Files
+.env
+*.env
+*.local
+*.json
+*.yml
+
+# Cloudinary configuration files (if applicable)
+cloudinary/
+
+# PyCharm
+*.iml
+
+# System Files
+.DS_Store
+Thumbs.db

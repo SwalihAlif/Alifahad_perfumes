@@ -1,0 +1,267 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Order Management</title>
+    <!-- plugins:css -->
+    <link rel="stylesheet" href="{% static 'admin/vendors/mdi/css/materialdesignicons.min.css' %}">
+    <link rel="stylesheet" href="{% static 'admin/vendors/css/vendor.bundle.base.css' %}">
+    <!-- endinject -->
+    <!-- Plugin css for this page -->
+    <link rel="stylesheet" href="{% static 'admin/vendors/jvectormap/jquery-jvectormap.css' %}">
+    <link rel="stylesheet" href="{% static 'admin/vendors/flag-icon-css/css/flag-icon.min.css' %}">
+    <link rel="stylesheet" href="{% static 'admin/vendors/owl-carousel-2/owl.carousel.min.css' %}">
+    <link rel="stylesheet" href="{% static 'admin/vendors/owl-carousel-2/owl.theme.default.min.css' %}">
+    <!-- End plugin css for this page -->
+    <!-- inject:css -->
+    <link rel="stylesheet" href="{% static 'admin/css/style.css' %}">
+    <!-- End layout styles -->
+    <link rel="shortcut icon" href="{% static 'admin/images/favicon.png' %}" />
+    <!-- Include SweetAlert CSS and JavaScript -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+    <!-- Bootstrap 5 JavaScript and Popper.js -->
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Management</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        :root {
+            --bg-primary: #000000;
+            --bg-secondary: #1a1a1a;
+            --text-primary1: #f7f3f6;
+            --text-primary: #5a0344;
+            --text-secondary: #cccccc;
+            --accent-color: #2196f3;
+            --hover-color: #1976d2;
+            --table-header: #2c2c2c;
+            --table-row: #1e1e1e;
+            --table-row-hover: #2a2a2a;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Inter', 'Roboto', Arial, sans-serif;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+        }
+
+        h1 {
+            color: var(--text-primary1);
+            font-weight: 600;
+            margin-bottom: 2rem;
+            text-align: center;
+            letter-spacing: -0.5px;
+        }
+
+        .table {
+            background-color: var(--bg-secondary);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .table thead {
+            background-color: var(--table-header);
+        }
+
+        .table th {
+            color: var(--text-primary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #444;
+            padding: 15px;
+        }
+
+        .table td {
+            color: var(--text-secondary);
+            background-color: var(--table-row);
+            vertical-align: middle;
+            padding: 15px;
+            border-color: #333;
+        }
+
+        .table tbody tr {
+            transition: background-color 0.3s ease;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: var(--table-row-hover);
+        }
+
+        .btn-view {
+            display: inline-block;
+            background-color: var(--accent-color);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+        }
+
+        .btn-view:hover {
+            background-color: var(--hover-color);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .table-responsive {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+
+  </head>
+  <body>
+    <div class="container-scroller">
+      {% include 'admin/sidebar.html' %}
+      <!-- partial -->
+      <div class="container-fluid page-body-wrapper">
+        {% include 'admin/navbar.html' %}
+        <!-- partial -->
+        <div class="main-panel">
+          <div class="content-wrapper">
+            <!-- Content Block -->
+            {% block content %}
+            <div class="container">
+                <h1>Order Management</h1>
+                <div class="table-responsive">
+                    <table class="table table-hover text-center">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Date</th>
+                                <th>Total Amount</th>
+                                <th>Items</th>
+                                <th>Order Status</th>
+                                <th>Payment Status</th>
+                                <th>Payment Method</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in orders %}
+                            <tr>
+                                <td>{{ order.user_id.username }}</td>
+                                <td>{{ order.order_date|date:"d M, Y" }}</td>
+                                <td>₹{{ order.total_amount }}</td>
+                                <td>
+                                    {% for item in order.order_all.all %}
+                                        {{ item.product_added.product.product_name }} (x{{ item.quantity }})<br>
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {% for item in order.order_all.all %}
+                                        ({{ item.status }}) <br>
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {% for item in order.order_all.all %}
+                                    ({{ item.payment_status }}) <br>
+                                    {% endfor %}
+                                </td>
+                                <td>{{ order.payment_method }}</td>
+                                <td>
+                                    <a href="{% url 'order:order_detail_view' order.serial_number %}" class="btn-view">View</a>
+                                    
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endblock %}
+            <!-- Pagination Controls -->
+<div class="pagination-container text-center">
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {% if orders.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ orders.previous_page_number }}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            {% endif %}
+
+            {% for num in orders.paginator.page_range %}
+            <li class="page-item {% if orders.number == num %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+            </li>
+            {% endfor %}
+
+            {% if orders.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ orders.next_page_number }}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+
+
+
+
+          </div>
+          <!-- content-wrapper ends -->
+        </div>
+        <!-- main-panel ends -->
+      </div>
+      <!-- page-body-wrapper ends -->
+    </div>
+    <!-- container-scroller -->
+    <!-- plugins:js -->
+    <script src="{% static 'admin/vendors/js/vendor.bundle.base.js' %}"></script>
+    <!-- endinject -->
+    <!-- Plugin js for this page -->
+    <script src="{% static 'admin/vendors/chart.js/Chart.min.js' %}"></script>
+    <script src="{% static 'admin/vendors/progressbar.js/progressbar.min.js' %}"></script>
+    <script src="{% static 'admin/vendors/jvectormap/jquery-jvectormap.min.js' %}"></script>
+    <script src="{% static 'admin/vendors/jvectormap/jquery-jvectormap-world-mill-en.js' %}"></script>
+    <script src="{% static 'admin/vendors/owl-carousel-2/owl.carousel.min.js' %}"></script>
+    <!-- End plugin js for this page -->
+    <!-- inject:js -->
+    <script src="{% static 'admin/js/off-canvas.js' %}"></script>
+    <script src="{% static 'admin/js/hoverable-collapse.js' %}"></script>
+    <script src="{% static 'admin/js/misc.js' %}"></script>
+    <script src="{% static 'admin/js/settings.js' %}"></script>
+    <script src="{% static 'admin/js/todolist.js' %}"></script>
+    <!-- endinject -->
+    <!-- Custom js for this page -->
+    <script src="{% static 'admin/js/dashboard.js' %}"></script>
+    <!-- End custom js for this page -->
+    {% if errors %}
+    <script>
+        Swal.fire({
+            title: 'Error!',
+            html: `{% for field, error_list in errors.items %}
+                    {{ error_list|join:', ' }}<br>
+                   {% endfor %}`,
+            icon: 'error',
+            confirmButtonText: 'OK'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                clearFormAndHideModal('createCategoryModal', 'createCategoryForm');
+            }
+        });
+    </script>
+    {% endif %}
+  </body>
+</html>
+
+

@@ -29,6 +29,9 @@ urlpatterns = [
     path('cart/', include('cart_app.urls')),
     path('order/', include('order_app.urls')),
     path('coupon/', include('coupon_app.urls')),
+    path('wishlist/', include('wishlist_app.urls')),
+    path('wallet/', include('wallet_app.urls')),
+    path('review/', include('review_app.urls')),
 
     path('', views.redirect_to_home), 
 ]

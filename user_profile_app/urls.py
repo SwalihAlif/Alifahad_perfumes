@@ -22,4 +22,8 @@ urlpatterns = [
 
     #-----------Admin User Profile Details----------#
     path('admin_user_profile/', views.admin_user_profile, name='admin_user_profile'),
+
+
+    # path('order-details/', views.order_details, name='order-details'),
+    # path("cancel-order-json/", views.cancel_order_json, name="cancel_order_json"),
 ]

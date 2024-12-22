@@ -1,58 +1,159 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wishlist</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
+{% extends "user/base.html" %}
 
-<div class="container my-5">
-    <h2 class="text-center mb-4">My Wishlist</h2>
+{% block content %}
 
-    <!-- Wishlist Items -->
-    <div class="row">
-        <div class="col-md-8">
-            <!-- Single Wishlist Item -->
-            <div class="card mb-3">
-                <div class="row no-gutters align-items-center">
-                    <div class="col-md-4">
-                        <img src="https://via.placeholder.com/150" class="card-img" alt="Product Image">
-                    </div>
-                    <div class="col-md-8">
-                        <div class="card-body">
-                            <h5 class="card-title">Product Name</h5>
-                            <p class="card-text">Price: $100.00</p>
-                            <button class="btn btn-primary btn-sm">Add to Cart</button>
-                            <button class="btn btn-danger btn-sm">Remove from Wishlist</button>
-                        </div>
-                    </div>
-                </div>
+<br><br><br>
+<h1 style="width: 100%; text-align: center;">Your Wishlist</h1>
+{% if messages %} <div class="messages"> 
+    {% for message in messages %} 
+    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}"> 
+        {{ message }} 
+    </div> 
+    {% endfor %} 
+</div> 
+{% endif %}
+
+<div id="wishlist-container" style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin-top: 20px;">
+    {% if wishlist_items %}
+        {% for item in wishlist_items %}
+            <div class="wishlist-card">
+                <img src="{{ item.variant.product.image_1.url }}" alt="{{ item.variant.product.product_name }}" class="wishlist-image">
+                <h4 class="wishlist-title">{{ item.variant.product.product_name }}</h4>
+                <p class="wishlist-size">Size: {{ item.variant.size }}</p>
+                <p class="wishlist-price">Price: ${{ item.variant.product_price_after }}</p>
+                <button class="remove-btn" data-url="{% url 'remove_from_wishlist' item.variant.id %}">Remove</button>
+                
+
+    <a href="{% url 'move_to_cart' item.variant.id %}"><button class="move-btn">Add to Cart</button></a>
+
+                
             </div>
-            <!-- End of Single Wishlist Item -->
+        {% endfor %}
+    {% else %}
+        <p>Your wishlist is empty.</p>
+    {% endif %}
+</div><br><br>
 
-            <!-- Repeat the above "Single Wishlist Item" div for more items -->
-        </div>
-        
-        <!-- Wishlist Summary (Optional) -->
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Wishlist Summary</h5>
-                    <p>Items: 3</p>
-                    <p>Total Potential Savings: $30.00</p>
-                    <a href="#" class="btn btn-success btn-block">Shop All Wishlist Items</a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+<!-- SweetAlert JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const removeButtons = document.querySelectorAll('.remove-btn');
 
-<!-- Bootstrap JS and dependencies -->
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.4.3/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</body>
-</html>
+    removeButtons.forEach(button => {
+        button.addEventListener('click', function (event) {
+            event.preventDefault();
+            const url = this.getAttribute('data-url');
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to undo this action!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, remove it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}', // CSRF token for security
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            Swal.fire(
+                                'Removed!',
+                                data.message,
+                                'success'
+                            ).then(() => {
+                                window.location.reload(); // Reload page to update the wishlist
+                            });
+                        } else {
+                            Swal.fire(
+                                'Error!',
+                                data.message,
+                                'error'
+                            );
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire(
+                            'Error!',
+                            'Something went wrong. Please try again.',
+                            'error'
+                        );
+                    });
+                }
+            });
+        });
+    });
+});
+</script>
+
+<style>
+    /* Wishlist card styles */
+    .wishlist-card {
+        background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+        border-radius: 15px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        width: 300px;
+        text-align: center;
+        position: relative;
+    }
+
+    .wishlist-image {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        border-radius: 10px;
+    }
+
+    .wishlist-title {
+        font-size: 1.2rem;
+        font-weight: bold;
+        margin-top: 10px;
+        color: #333;
+    }
+
+    .wishlist-size,
+    .wishlist-price {
+        font-size: 1rem;
+        margin: 5px 0;
+        color: #555;
+    }
+
+    .remove-btn {
+        background: linear-gradient(135deg, #ff758c, #ff7eb3);
+        color: white;
+        border: none;
+        border-radius: 20px;
+        padding: 10px 20px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        margin-top: 10px;
+        transition: all 0.3s ease;
+    }
+    .move-btn {
+        background: linear-gradient(135deg, #012775, #ff7eb3);
+        color: white;
+        border: none;
+        border-radius: 20px;
+        padding: 10px 20px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        margin-top: 10px;
+        transition: all 0.3s ease;
+    }
+
+    .remove-btn:hover {
+        background: linear-gradient(135deg, #ff5a6e, #ff7eb3);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+    }
+</style>
+{% endblock %}
+ 

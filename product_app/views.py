@@ -7,6 +7,9 @@ from django.db.models import  F
 from django.contrib import messages
 import re
 from django.core.paginator import Paginator,PageNotAnInteger,EmptyPage
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
+from .models import Product, Variant
 
 from django.db.models import Q
 from django.db.models.functions import Cast
@@ -71,6 +74,7 @@ def edit_product(request, product_id):
         product_name = request.POST.get('product_name')
         description = request.POST.get('description')
         category_id = request.POST.get('category')
+        category_instance = get_object_or_404(Category, id=category_id)
         # available_stock = request.POST.get('available_stock')
         # price = request.POST.get('price')
         offer = request.POST.get('offer')
@@ -105,10 +109,10 @@ def edit_product(request, product_id):
         
         product.product_name = product_name
         product.description = description
-        product.category = category_id
+        product.category = category_instance
         # product.available_stock = available_stock
         # product.price = price
-        product.offer = offer
+        product.offer_percentage = offer
 
         # Update images if files are provided
         if image_1:
@@ -147,9 +151,7 @@ def toggle_product_listing(request, product_id):
 
 
 
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib import messages
-from .models import Product, Variant
+
 
 def get_size_choices(category_name):
     if category_name == 'attar':
@@ -278,14 +280,25 @@ def user_products(request):
 
 
 
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib import messages
-from .models import Product, Variant
-from cart_app.models import Cart, CartItem  
+
 
 def product_details(request, product_id):
     product = get_object_or_404(Product, id=product_id, is_listed=True)
-    return render(request, 'user/product-detail.html', {'product': product})
+    variants = product.variants.all()
+    
+
+    for variant in variants:
+        variant.highest_offer = max(
+            variant.offer_percentage,
+            variant.product.offer_percentage,
+            variant.product.category.category_offer)
+        
+    context = {
+        'product': product,
+        'variants': variants,
+        'offer': variant.highest_offer,
+    }
+    return render(request, 'user/product-detail.html', context)
 
 
 

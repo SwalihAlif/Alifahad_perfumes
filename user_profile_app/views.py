@@ -9,12 +9,104 @@ from django.core.exceptions import PermissionDenied
 from django.contrib.auth import authenticate, login
 from django.core.exceptions import ValidationError
 from validator_app import views
+from wallet_app.models import Wallet, WalletTransactions
+from order_app.models import Order, OrderItems
 print("Validator App is imported successfully")
 
 
 
 # Create your views here.
 
+from django.http import JsonResponse
+import json
+
+# @login_required
+# def order_details(request):
+#     if request.method == 'POST':
+#         try:
+#             data = json.loads(request.body)  # Load JSON from request body
+#             serial_number = data.get('serial_number')
+            
+#             if not serial_number:
+#                 return JsonResponse({'error': 'Order ID is required'}, status=400)
+            
+#             order = Order.objects.prefetch_related('order_all__product_added').get(
+#                 serial_number=serial_number,
+#                 user_id=request.user
+#             )
+            
+#             order_items = order.order_all.all()
+#             items = [
+#                 {
+#                     'name': item.product_added.product.product_name,
+#                     'variant': item.product_added.size,
+#                     'price': float(item.product_added.price),
+#                     'quantity': item.quantity,
+#                     'subtotal': float(item.quantity * item.product_added.price),
+#                     'image_url': item.product_added.product.image_1.url if item.product_added.product.image_1 else ''
+#                 }
+#                 for item in order_items
+#             ]
+            
+#             response_data = {
+#                 'serial_number': order.serial_number,
+#                 'order_date': order.order_date.strftime('%Y-%m-%d %H:%M:%S'),
+#                 'status': order.status,
+#                 'payment_method': order.payment_method,
+#                 'total_amount': float(order.total_amount),
+#                 'items': items
+#             }
+            
+#             return JsonResponse(response_data, status=200)
+        
+#         except Order.DoesNotExist:
+#             return JsonResponse({'error': 'Order not found'}, status=404)
+        
+#         except Exception as e:
+#             return JsonResponse({'error': str(e)}, status=500)
+    
+#     return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+
+
+# #------------------------------------------------cancel order -------------------------------------------
+# from django.http import JsonResponse
+# from django.views.decorators.csrf import csrf_exempt
+# import json
+
+# @csrf_exempt
+# def cancel_order_json(request):
+#     if request.method == "POST":
+#         try:
+#             # Parse the JSON body
+#             data = json.loads(request.body)
+#             order_id = data.get("order_id")
+
+#             # Validate and update the order status
+#             order = Order.objects.get(serial_number=order_id)
+#             if order.status != "Cancelled":
+#                 order.status = "Cancelled"
+#                 order.save()
+#                 return JsonResponse({"success": True, "message": "Order cancelled successfully."})
+#             else:
+#                 return JsonResponse({"success": False, "message": "Order is already cancelled."})
+#         except Order.DoesNotExist:
+#             return JsonResponse({"success": False, "message": "Order not found."}, status=404)
+#         except Exception as e:
+#             return JsonResponse({"success": False, "message": str(e)}, status=500)
+#     else:
+#         return JsonResponse({"success": False, "message": "Invalid request method."}, status=405)
+
+
+
+
+#------------------------------------------------cancel order -------------------------------------------
+
+
+
+
+
+from django.db.models import Sum
 
 @login_required
 @never_cache
@@ -23,18 +115,37 @@ def user_profile(request):
     storage.used = True
 
     user_obj = request.user
+
+    # Get user addresses
     try:
         addresses = UserProfile.objects.filter(user=user_obj, delete_address=False)
     except UserProfile.DoesNotExist:
         addresses = None
-    # referral = Referral.objects.get(user_id=user_obj)
+
+    # Get user orders
+    orders = Order.objects.filter(user_id=user_obj).order_by('-order_date')
+
+    # Get wallet details
+    try:
+        wallet = Wallet.objects.get(user=user_obj)
+        wallet_balance = wallet.balance
+        last_transaction = WalletTransactions.objects.filter(wallet=wallet).order_by('-timestamp').first()
+    except Wallet.DoesNotExist:
+        wallet_balance = 0.00
+        last_transaction = None
+
     context = {
         'user_details': user_obj,
         'user_address_details': addresses,
-        # 'referral': referral
+        'orders': orders,
+        'wallet': {
+            'balance': wallet_balance,
+            'last_transaction': last_transaction
+        },
     }
 
     return render(request, 'user/profile_user.html', context)
+
 
 #-------------------------------------------- User Editing Profile ------------------------------------------------------#
 

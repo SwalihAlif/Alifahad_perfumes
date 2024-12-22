@@ -1,0 +1,188 @@
+{% extends 'user/base.html' %}
+
+{% block content %}
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f4f4f8;
+            font-family: 'Arial', sans-serif;
+        }
+        .celebration-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        .confetti {
+            width: 15px;
+            height: 15px;
+            background-color: transparent;
+            position: absolute;
+            animation: fall linear forwards;
+        }
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+            }
+        }
+        .flower {
+            position: absolute;
+            font-size: 30px;
+            opacity: 0.7;
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+    </style>
+</head>
+<br><br>
+<body class="bg-gray-100">
+    <div class="celebration-container" id="celebration"></div>
+
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+            <div class="bg-green-500 text-white text-center py-6">
+                <h1 class="text-4xl font-bold" id="congratsTitle">Congratulations!</h1>
+                <p class="text-xl mt-2">Your order has been successfully placed</p>
+            </div>
+
+            <div class="p-6">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <h2 class="text-2xl font-semibold mb-4 text-gray-800">Order Details</h2>
+                        <div class="space-y-2">
+                            <p class="text-gray-600"><strong>Order ID:</strong> {{ order.serial_number }}</p>
+                            <p class="text-gray-600"><strong>Order Date:</strong> {{ order.order_date }}</p>
+                            <p class="text-gray-600"><strong>Payment Method:</strong> {{ order.payment_method }}</p>
+                            <p class="text-gray-600"><strong>Payment Status:</strong> {{ order.payment_status }}</p>
+                            <p class="text-gray-600"><strong>Total Amount:</strong> ₹{{ order.total_amount }}</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h2 class="text-2xl font-semibold mb-4 text-gray-800">Shipping Address</h2>
+                        <div class="space-y-2">
+                            <p class="text-gray-600">{{ order.address.full_name }}</p>
+                            <p class="text-gray-600">{{ order.address.area }}, {{ order.address.city }}</p>
+                            <p class="text-gray-600">{{ order.address.state }} - {{ order.address.pincode }}</p>
+                            <p class="text-gray-600">Phone: {{ order.address.phone_no }}</p>
+                            <p>Coupon Discount: ₹{{ order.coupon_discount|default:"0.00" }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8">
+                    <h2 class="text-2xl font-semibold mb-4 text-gray-800">Order Items</h2>
+                    <div class="overflow-x-auto">
+                        <table class="w-full bg-white shadow rounded-lg overflow-hidden">
+                            <thead class="bg-gray-200">
+                                <tr>
+                                    <th class="p-3 text-left">Product</th>
+                                    <th class="p-3 text-left">Size</th>
+                                    <th class="p-3 text-left">Quantity</th>
+                                    <th class="p-3 text-left">Price</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in order_items %}
+                                <tr class="border-b">
+                                    
+                                    <td style="width: 30px;" class="p-3"><img src="{{item.product_added.product.image_1.url}}" alt=""></td>
+                                    <td class="p-3">{{ item.size }}</td>
+                                    <td class="p-3">{{ item.quantity }}</td>
+                                    <td class="p-3">₹{{ item.final_product_price }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="mt-8 flex justify-center space-x-4">
+                    <a href="{% url 'home' %}" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                        Continue Shopping
+                    </a>
+                    <a href="{% url 'order:all_orders' %}" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded">
+                        View All Orders
+                    </a>
+                    <a href="{% url 'order:download_invoice' order.serial_number %}" class="btn btn-success">Download Invoice as PDF</a>
+                </div>
+
+                
+            </div>
+        </div>
+    </div> <br><br>
+
+    <script>
+        function createConfetti() {
+            const container = document.getElementById('celebration');
+            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9d56e', '#ff9ff3'];
+            
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                confetti.style.animationDelay = Math.random() * 2 + 's';
+                
+                container.appendChild(confetti);
+            }
+        }
+
+        function createFlowers() {
+            const container = document.getElementById('celebration');
+            const flowers = ['🌻', '🌹', '🌷', '🌼', '🌸'];
+            
+            for (let i = 0; i < 20; i++) {
+                const flower = document.createElement('div');
+                flower.classList.add('flower');
+                
+                flower.textContent = flowers[Math.floor(Math.random() * flowers.length)];
+                flower.style.left = Math.random() * 100 + 'vw';
+                flower.style.animationDelay = Math.random() * 5 + 's';
+                
+                container.appendChild(flower);
+            }
+        }
+
+        function animateCongrats() {
+            const title = document.getElementById('congratsTitle');
+            title.style.animation = 'bounce 1s';
+            title.addEventListener('animationend', () => {
+                title.style.animation = '';
+            });
+        }
+
+        window.addEventListener('load', () => {
+            createConfetti();
+            createFlowers();
+            animateCongrats();
+
+            // Remove celebration elements after 10 seconds
+            setTimeout(() => {
+                const container = document.getElementById('celebration');
+                container.innerHTML = '';
+            }, 10000);
+        });
+    </script>
+</body>
+</html>
+
+
+{% endblock %}

@@ -44,7 +44,7 @@ class Variant(models.Model):
     SIZE_CHOICES = ATTAR + PERFUME + STICKS
 
     product = models.ForeignKey(Product, related_name='variants', on_delete=models.CASCADE)
-    size = models.CharField(max_length=10, choices=SIZE_CHOICES)
+    size = models.CharField(max_length=255, choices=SIZE_CHOICES)
     price = models.DecimalField(max_digits=10, decimal_places=2) 
     stock = models.PositiveIntegerField()
     offer_percentage = models.PositiveIntegerField(

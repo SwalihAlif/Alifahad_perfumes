@@ -7,19 +7,32 @@
     <title>Coupon Management</title>
     <link rel="stylesheet" href="{% static 'admin/vendors/mdi/css/materialdesignicons.min.css' %}">
     <link rel="stylesheet" href="{% static 'admin/vendors/css/vendor.bundle.base.css' %}">
-    <!-- Bootstrap CSS for the modal and form -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="{% static 'admin/css/style.css' %}">
-    
-    <!-- Bootstrap Datepicker CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" />
-    
     <link rel="stylesheet" href="{% static 'admin/css/style.css' %}">
     <link rel="shortcut icon" href="{% static 'admin/images/favicon.png' %}" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+            .error-message {
+                background-color: #f8d7da; /* Light red background */
+                color: #721c24;           /* Dark red text */
+                border: 1px solid #f5c6cb; /* Border with lighter red */
+                padding: 10px;            /* Spacing inside the box */
+                margin: 10px 0;           /* Spacing between messages */
+                border-radius: 5px;       /* Rounded corners */
+                font-size: 14px;          /* Text size */
+            }
 
+            .success-message {
+                background-color: #d4edda; /* Light green background */
+                color: #155724;           /* Dark green text */
+                border: 1px solid #c3e6cb; /* Border with lighter green */
+                padding: 10px;            /* Spacing inside the box */
+                margin: 10px 0;           /* Spacing between messages */
+                border-radius: 5px;       /* Rounded corners */
+                font-size: 14px;          /* Text size */
+            }
+        </style>
   </head>
 
   <body>
@@ -48,31 +61,48 @@
                   </div>
                   <div class="modal-body">
                     <!-- Form for creating new coupon -->
-                    <form method="POST" action="">
+                    <form method="POST" action="{% url 'coupon_add' %}">
                       {% csrf_token %}
                       <div class="form-group">
                         <label for="code">Coupon Code</label>
-                        <input type="text" class="form-control" id="code" name="code" maxlength="30" required>
+                        <input type="text" class="form-control" id="code" name="code" value="{{ data.code|default_if_none:'' }}" maxlength="30" required>
                       </div>
                       <div class="form-group">
-                        <label for="discount_value">Discount Value</label>
-                        <input type="number" step="0.01" class="form-control" id="discount_value" name="discount_value" max="9999999999" required>
+                        <label for="discount_type">Discount Type</label>
+                        <!-- Dropdown for discount type -->
+                        <select class="form-control" id="discount_type" name="discount_type" required>
+                          <option value="" disabled selected>Select Discount Type</option>
+                          <option value="percentage" {% if data.discount_type == "percentage" %}selected{% endif %} >Percentage</option>
+                          <option value="fixed" {% if data.discount_type == "fixed" %}selected{% endif %} >Fixed Amount</option>
+                        </select>
                       </div>
+                      <div class="form-group">
+                        <label for="discount_amount" id="discount_label">Discount Value</label>
+                        <!-- Updated discount_amount input to dynamically update -->
+                        <input type="number" step="0.01" class="form-control" id="discount_amount" name="discount_amount" value="{{ data.discount_amount|default_if_none:'' }}" max="9999999999" placeholder="Enter value" required>
+                      </div>
+
+
                       <div class="form-group">
                         <label for="min_purchase_amount">Minimum Purchase Amount</label>
-                        <input type="number" step="0.01" class="form-control" id="min_purchase_amount" name="min_purchase_amount" max="9999999999" required>
+                        <input type="number" step="0.01" class="form-control" id="min_purchase_amount" name="min_purchase_amount" value="{{ data.min_purchase_amount|default_if_none:'' }}" required>
                       </div>
-                      <div class="form-group">
-                        <label for="valid_from">Valid From</label>
-                        <input type="text" class="form-control datepicker" id="valid_from" name="valid_from" required>
-                      </div>
-                      <div class="form-group">
-                        <label for="valid_to">Valid To</label>
-                        <input type="text" class="form-control datepicker" id="valid_to" name="valid_to" required>
-                      </div>
+                      
                       <div class="form-group">
                         <label for="usage_limit">Usage Limit</label>
-                        <input type="number" class="form-control" id="usage_limit" name="usage_limit" value="1" min="1" required>
+                        <input type="number" class="form-control" id="usage_limit" name="usage_limit" value="{{ data.usage_limit|default_if_none:'' }}" min="1" required>
+                      </div>
+                      
+
+
+
+                      <div class="form-group">
+                        <label for="valid_until">Valid Until</label>
+                        <input type="text" class="form-control datepicker" id="valid_until" name="valid_until" value="{{ data.valid_until|default_if_none:'' }}">
+                      </div>
+                      <div class="form-group">
+                        <label for="active">Active</label>
+                        <input type="checkbox" id="active" name="active" {% if data.active == "on" %}checked{% endif %}>
                       </div>
                       <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -83,13 +113,18 @@
                 </div>
               </div>
             </div>
+
             {% if messages %}
-  <div>
-    {% for message in messages %}
-      <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-    {% endfor %}
-  </div>
+    <div>
+
+        {% for message in messages %}
+            <div class="{% if message.tags %}{{ message.tags }}-message{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
 {% endif %}
+
 
             <!-- Existing Coupons Table -->
             <div class="row">
@@ -101,27 +136,39 @@
                       <table class="table">
                         <thead>
                           <tr>
-                            <th>Id</th>
-                            <th>Coupon Code</th>
-                            <th>Discount Value</th>
-                            <th>Min Purchase Amount</th>
-                            <th>Valid From</th>
-                            <th>Valid To</th>
+                            <th>ID</th>
+                            <th>Code</th>
+                            <th>Discount</th>
+                            <th>Discount Type</th>
+                            <th>Min Purchase</th>
+                            <th>Limit</th>
+                            <th>Active</th>
+                            <th>Created At</th>
+                            <th>Valid Until</th>
                             <th>Action</th>
                           </tr>
                         </thead>
                         <tbody>
-                          {% for coupon in coupon %}
+                          {% for coupon in coupons %}
                           <tr>
                             <td>{{ coupon.id }}</td>
                             <td>{{ coupon.code }}</td>
-                            <td>{{ coupon.discount_value }}</td>
-                            <td>{{ coupon.min_purchase_amount }}</td>
-                            <td>{{ coupon.valid_from }}</td>
-                            <td>{{ coupon.valid_to }}</td>
                             <td>
-                              <a href="{% url 'edit_coupon' coupon.id %}" class="btn btn-primary">Edit</a>
-                              <a href="{% url 'delete_coupon' coupon.id %}" class="btn btn-danger">Delete</a>
+                              {% if coupon.discount_type == "percentage" %}
+                                {{ coupon.discount_amount|floatformat:2 }}%
+                              {% else %}
+                              ₹ {{ coupon.discount_amount }}
+                              {% endif %}
+                            </td>
+                            <td>{{ coupon.discount_type }}</td>
+                            <td>{{ coupon.min_purchase_amount }}</td>
+                            <td>{{ coupon.usage_limit }}</td>
+                            <td>{{ coupon.active|yesno:"Yes,No" }}</td>
+                            <td>{{ coupon.created_at }}</td>
+                            <td>{{ coupon.valid_until }}</td>
+                            <td>
+                              <a href="{% url 'coupon_edit' coupon.id %}" class="btn btn-primary">Edit</a>
+                              <a href="{% url 'coupon_delete' coupon.id %}" class="btn btn-danger">Delete</a>
                             </td>
                           </tr>
                           {% endfor %}
@@ -141,16 +188,32 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
-
-    <!-- Initialize the datepicker -->
     <script>
       $(document).ready(function() {
         $('.datepicker').datepicker({
-          format: 'yyyy-mm-dd',  // Ensure the format matches what Django expects
+          format: 'yyyy-mm-dd',
           autoclose: true,
           todayHighlight: true
+        });
+
+        // Dynamically update the discount amount field based on the selected discount type
+        $('#discount_type').on('change', function() {
+          const discountType = $(this).val();
+          const discountField = $('#discount_amount');
+          const discountLabel = $('#discount_label');
+
+          if (discountType === 'percentage') {
+            discountField.attr('step', '1'); // Percentage values should be whole numbers
+            discountField.attr('placeholder', 'Enter percentage (e.g., 10)');
+            discountLabel.text('Discount Amount (%)');
+          } else if (discountType === 'fixed') {
+            discountField.attr('step', '0.01'); // Fixed amount values can be decimal
+            discountField.attr('placeholder', 'Enter fixed amount (e.g., 10.00)');
+            discountLabel.text('Discount Amount (Fixed)');
+          }
         });
       });
     </script>
   </body>
 </html>
+

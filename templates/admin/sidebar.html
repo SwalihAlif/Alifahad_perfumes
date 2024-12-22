@@ -14,12 +14,12 @@
                 <i class="mdi mdi-speedometer"></i>
             </span>
             <span class="menu-title">Dashboard</span>
-            <i class="menu-arrow"></i>
+            <i class="menu-arrow" href="{% url 'order:dashboard' %}"></i>
         </a>
         <div class="collapse" id="dashboard-dropdown">
             <ul class="nav flex-column sub-menu">
                 <li class="nav-item"> 
-                    <a class="nav-link" href="{% url 'panel' %}">Overview</a>
+                    <a class="nav-link" href="{% url 'order:dashboard' %}">Overview</a>
                 </li>
                
             </ul>
@@ -58,9 +58,17 @@
                 <span class="menu-title">Order</span>
             </a>
         </li>
-      
+        <li class="nav-item menu-items">
+            <a class="nav-link" href="{% url 'coupon_list' %}">
+                <span class="menu-icon">
+                    <i class="mdi mdi-table-large"></i>
+                </span>
+                <span class="menu-title">Coupon</span>
+            </a>
+        </li>
+        
 
-
+        
 
 
 

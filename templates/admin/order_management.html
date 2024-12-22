@@ -145,7 +145,7 @@
                                 <th>Username</th>
                                 <th>Date</th>
                                 <th>Total Amount</th>
-                                <th>Items</th>
+                                <th>serial_number</th>
                                 <th>Order Status</th>
                                 <th>Payment Status</th>
                                 <th>Payment Method</th>
@@ -159,19 +159,18 @@
                                 <td>{{ order.order_date|date:"d M, Y" }}</td>
                                 <td>₹{{ order.total_amount }}</td>
                                 <td>
-                                    {% for item in order.order_all.all %}
-                                        {{ item.product_added.product.product_name }} (x{{ item.quantity }})<br>
-                                    {% endfor %}
+                                   
+                                    {{ order.serial_number }}<br>
+                                    
                                 </td>
                                 <td>
-                                    {% for item in order.order_all.all %}
-                                        ({{ item.status }}) <br>
-                                    {% endfor %}
+                                    
+                                        {{ order.status }} <br>
+                                    
                                 </td>
                                 <td>
-                                    {% for item in order.order_all.all %}
-                                    ({{ item.payment_status }}) <br>
-                                    {% endfor %}
+                                    
+                                    {{ order.payment_status }} <br>
                                 </td>
                                 <td>{{ order.payment_method }}</td>
                                 <td>

@@ -22,6 +22,39 @@
     <link rel="stylesheet" href="{% static 'admin/css/style.css' %}">
     <!-- End layout styles -->
     <link rel="shortcut icon" href="{% static 'admin/images/favicon.png' %}" />
+    <style>
+        /* Basic pagination styling */
+.pagination {
+    display: flex;
+    justify-content: center;
+    padding: 10px 0;
+}
+
+.pagination .step-links a,
+.pagination .step-links span {
+    margin: 0 5px;
+    padding: 8px 16px;
+    text-decoration: none;
+    color: #e6eff9;
+    background-color: #4a4b4d;
+    border: 1px solid #2e2e2f;
+    border-radius: 5px;
+}
+
+.pagination .step-links a:hover {
+    background-color: #272728;
+}
+
+.pagination .current {
+    margin: 0 5px;
+    padding: 8px 16px;
+    color: #450303;
+    background-color: #3e3e3e;
+    border: 1px solid #2d2e2e;
+    border-radius: 5px;
+}
+
+    </style>
 </head>
 <body>
     <div class="container-scroller">
@@ -30,29 +63,50 @@
             {% include 'admin/navbar.html' %}
             <div class="main-panel">
                 <div class="content-wrapper">
-                    
+  
                     <!-- Revenue and Sales Metrics -->
-                    <div class="row">
-                        <div class="col-sm-4 grid-margin">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5>Overall Order Amount</h5>
-                                    <div class="d-flex align-items-center">
-                                        <h2 class="mb-0">₹{{ total_sales }}</h2>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-4 grid-margin">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5>Overall Sales Count</h5>
-                                    <div class="d-flex align-items-center">
-                                        <h2 class="mb-0">{{ sales_count }}</h2>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <!-- Revenue and Sales Metrics -->
+<div class="row">
+    <!-- Overall Order Amount -->
+    <div class="col-sm-4 grid-margin">
+        <div class="card">
+            <div class="card-body">
+                <h5>Overall Order Amount</h5>
+                <div class="d-flex align-items-center">
+                    <h2 class="mb-0">₹{{ total_sales }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Overall Sales Count -->
+    <div class="col-sm-4 grid-margin">
+        <div class="card">
+            <div class="card-body">
+                <h5>Overall Sales Count</h5>
+                <div class="d-flex align-items-center">
+                    <h2 class="mb-0">{{ sales_count }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Download Buttons -->
+    <div class="col-sm-4 grid-margin">
+        <div class="card">
+            <div class="card-body d-flex flex-column align-items-end">
+                <a href="{% url 'order:generate_pdf_report' %}" class="btn btn-primary mb-2 w-100" target="_blank">Download Report as PDF</a>
+                <a href="{% url 'order:generate_excel_report' %}" class="btn btn-success w-100" target="_blank">Download Report as Excel</a>
+            </div>
+        </div>
+    </div>
+
+
+                        
+                        
+                        
+
+
+
+
                     </div> 
     
                     <!-- Top-Selling Categories -->
@@ -74,10 +128,14 @@
                                             <tbody>
                                                 {% for category in top_category %}
                                                 <tr>
-                                                    <td>{{ category.product__category__category_name }}</td>
+                                                    <td>
+                                                        <img src="{{ category.product_added__product__category__category_image.url }}" alt="Category Image" style="width: 50px; height: auto;" />
+                                                        <span>{{ category.product_added__product__category__category_name }}</span>
+
+                                                        </td>
                                                     <td>{{ category.total_quantity_sold }}{{ category.product__category__category_unit }}</td>
                                                     <td>₹{{ category.total_revenue }}</td>
-                                                    <td>{{ category.product__category__category_unit }}</td>
+                                                    <td>{{ category.product_added__product__category__category_unit }}</td>
                                                 </tr>
                                                 {% empty %}
                                                 <tr>
@@ -113,16 +171,16 @@
                                                 {% for product in top_products %}
                                                 <tr>
                                                     <td>
-                                                        <img src="{{ product.product__image_1.url }}" alt="Product Image" style="width: 50px; height: auto;" />
-                                                        <span class="pl-2">{{ product.product__product_name }}</span>
+                                                        <img src="{{ product.product_added__product__image_1.url }}" alt="Product Image" style="width: 50px; height: auto;" />
+                                                        <span class="pl-2">{{ product.product_added__product__product_name }} ({{ product.product_added__size }})</span>
                                                     </td>
                                                     <td>{{ product.total_quantity_sold }}{{ product.product__category__category_unit }}</td>
                                                     <td>₹{{ product.total_revenue }}</td>
-                                                    <td>{{ product.product__available_stock }}{{ product.product__category__category_unit }}</td>
+                                                    <td>{{ product.product_added__stock }}{{ product.product__category__category_unit }}</td>
                                                     <td>
-                                                        {% if product.product__available_stock > 10 %}
+                                                        {% if product.product_added__stock > 10 %}
                                                             <div class="badge badge-outline-success">In Stock</div>
-                                                        {% elif product.product__available_stock > 0 %}
+                                                        {% elif product.product_added__stock > 0 %}
                                                             <div class="badge badge-outline-warning">Low Stock</div>
                                                         {% else %}
                                                             <div class="badge badge-outline-danger">Out of Stock</div>
@@ -137,10 +195,44 @@
                                             </tbody>
                                         </table>
                                     </div>
+
+                                    <!-- Pagination Controls -->
+                                    <div class="pagination">
+                                        <span class="step-links">
+                                            {% if top_products.has_previous %}
+                                                <a href="?page=1">&laquo; first</a>
+                                                <a href="?page={{ top_products.previous_page_number }}">previous</a>
+                                            {% endif %}
+            
+                                            <span class="current">
+                                                Page {{ top_products.number }} of {{ top_products.paginator.num_pages }}.
+                                            </span>
+            
+                                            {% if top_products.has_next %}
+                                                <a href="?page={{ top_products.next_page_number }}">next</a>
+                                                <a href="?page={{ top_products.paginator.num_pages }}">last &raquo;</a>
+                                            {% endif %}
+                                        </span>
+                                    </div>
+
+
+
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    
+                    
+
+
+
+
+
+
+
+
+
     
                     <!-- Top Customers -->
                     <div class="row">
@@ -160,7 +252,7 @@
                                             <tbody>
                                                 {% for customer in top_customers %}
                                                 <tr>
-                                                    <td>{{ customer.username }}</td>
+                                                    <td>{{ customer.user_id__username }}</td>
                                                     <td>{{ customer.total_orders }}</td>
                                                     <td>₹{{ customer.total_spend }}</td>
                                                 </tr>
@@ -189,16 +281,16 @@
                                                 <tr>
                                                     <th>Pincode</th>
                                                     <th>State</th>
-                                                    <th>District</th>
+                                                    <th>City</th>
                                                     <th class="text-right">Total Orders</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 {% for total in orders_by_pincode %}
                                                 <tr>
-                                                    <td>{{ total.user__addresses__pincode }}</td>
-                                                    <td>{{ total.user__addresses__state }}</td>
-                                                    <td>{{ total.user__addresses__district }}</td>
+                                                    <td>{{ total.address__pincode }}</td>
+                                                    <td>{{ total.address__state }}</td>
+                                                    <td>{{ total.address__city }}</td>
                                                     <td class="text-right">{{ total.total_orders }}</td>
                                                 </tr>
                                                 {% empty %}
@@ -235,6 +327,8 @@
                                 </div>
                             </div>
                         </div>
+                    
+                    
                     
                         <!-- Top-Selling Categories Pie Chart -->
                         <div class="col-lg-6 grid-margin stretch-card">
@@ -290,98 +384,142 @@
     <script src="{% static 'admin/js/dashboard.js' %}"></script>
     <!-- End custom js for this page -->
     
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <!-- Chart.js Configuration -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Bar chart for monthly orders
+document.addEventListener('DOMContentLoaded', function () {
     const ctx = document.getElementById('barChart').getContext('2d');
+    const noDataBar = document.getElementById('noDataBar');
+    const yearFilter = document.getElementById('yearFilter');
+
     let barChart;
 
-    function updateChart(year) {
-        fetch(`/admin/panel/year/${year}/`)
+    function fetchData(year) {
+        const url = "{% url 'order:get_monthly_orders' 0 %}".replace(0, year);  // Django template tag for URL
+        fetch(url)
             .then(response => response.json())
             .then(data => {
-                if (barChart) {
-                    barChart.destroy();
-                }
-
-                if (data.data.length === 0) {
-                    document.getElementById('noDataBar').style.display = 'block';
-                    return; // Exit if no data
+                if (data.total_orders.length === 0) {
+                    noDataBar.style.display = 'block';
+                    if (barChart) {
+                        barChart.destroy();
+                    }
                 } else {
-                    document.getElementById('noDataBar').style.display = 'none';
+                    noDataBar.style.display = 'none';
+                    if (barChart) {
+                        barChart.destroy();
+                    }
+                    barChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: data.months,
+                            datasets: [{
+                                label: 'Total Orders',
+                                data: data.total_orders,
+                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                borderWidth: 1
+                            }, {
+                                label: 'Total Revenue',
+                                data: data.total_revenue,
+                                backgroundColor: 'rgba(255, 159, 64, 0.2)',
+                                borderColor: 'rgba(255, 159, 64, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+                }
+            });
+    }
+
+    yearFilter.addEventListener('change', function () {
+        const selectedYear = this.value;
+        fetchData(selectedYear);
+    });
+
+    fetchData(yearFilter.value);
+});
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+    const ctx = document.getElementById('pieChart').getContext('2d');
+
+    function fetchTopCategories() {
+        const url = "{% url 'order:get_top_selling_categories' %}"; // Replace with your URL pattern
+
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.sales.length === 0) {
+                    console.log('No data available for top-selling categories.');
+                    return;
                 }
 
-                barChart = new Chart(ctx, {
-                    type: 'bar',
+                new Chart(ctx, {
+                    type: 'pie',
                     data: {
-                        labels: data.labels,
+                        labels: data.categories, // Category names
                         datasets: [{
-                            label: 'Orders',
-                            data: data.data,
-                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                            borderColor: 'rgba(75, 192, 192, 1)',
+                            label: 'Top-Selling Categories',
+                            data: data.sales, // Sales data
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.2)',
+                                'rgba(54, 162, 235, 0.2)',
+                                'rgba(255, 206, 86, 0.2)',
+                                'rgba(75, 192, 192, 0.2)',
+                                'rgba(153, 102, 255, 0.2)'
+                            ],
+                            borderColor: [
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(153, 102, 255, 1)'
+                            ],
                             borderWidth: 1
                         }]
                     },
                     options: {
                         responsive: true,
-                        scales: {
-                            x: {
-                                beginAtZero: true
-                            },
-                            y: {
-                                beginAtZero: true
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
                             }
                         }
                     }
                 });
+            })
+            .catch(error => {
+                console.error('Error fetching top-selling categories:', error);
             });
     }
 
-    // Initialize chart with default year
-    updateChart('2024');
+    // Fetch data and render chart
+    fetchTopCategories();
+});
 
-    // Year filter change event
-    document.getElementById('yearFilter').addEventListener('change', function(event) {
-        updateChart(event.target.value);
-    });
-
-    // Pie chart for top-selling categories
-    const ctxPie = document.getElementById('pieChart').getContext('2d');
-    
-    const categoryPieChart = new Chart(ctxPie, {
-        type: 'pie',
-        data: {
-            labels: {{ categories|safe }},  // Expecting categories as a list in the context
-            datasets: [{
-                label: 'Top-Selling Categories',
-                data: {{ quantities|safe }},  // Expecting quantities as a list in the context
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.2)',
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(255, 206, 86, 0.2)',
-                    'rgba(75, 192, 192, 0.2)',
-                    'rgba(153, 102, 255, 0.2)',
-                    'rgba(255, 159, 64, 0.2)'
-                ],
-                borderColor: [
-                    'rgba(255, 99, 132, 1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(153, 102, 255, 1)',
-                    'rgba(255, 159, 64, 1)'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true
-        }
-    });
 </script>
+
+    
+
+
+
+
 
 
 </body>

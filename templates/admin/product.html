@@ -169,7 +169,7 @@
                           <td><img src="{{ product.image_1.url }}" alt="Image 1" width="50"></td>
                           <td><img src="{{ product.image_2.url }}" alt="Image 2" width="50"></td>
                           <td><img src="{{ product.image_3.url }}" alt="Image 3" width="50"></td>
-                          <td>{{ product.offer}}</td>
+                          <td>{{ product.offer_percentage}}%</td>
                           <td>
                             <a href="{% url 'variant_list' product.id %}" class="btn btn-info">Add</a>
                           </td>
@@ -318,8 +318,8 @@
               {{ form.price }}
             </div>
             <div class="form-group">
-              {{ form.offer.label_tag }}
-              {{ form.offer }}
+              {{ form.offer_percentage.label_tag }}
+              {{ form.offer_percentage }}
             </div>
             <div class="form-group">
               {{ form.image_1.label_tag }}

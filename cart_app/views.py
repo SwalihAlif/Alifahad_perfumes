@@ -6,6 +6,10 @@ from order_app.models import Order, OrderItems
 from django.contrib import messages
 from django.db import transaction
 from user_profile_app.models import UserProfile
+from wallet_app.models import Wallet, WalletTransactions
+import razorpay
+from django.conf import settings
+from django.views.decorators.cache import never_cache
 
 #-------------------------- add to cart ----------------------------------------------------
 
@@ -54,7 +58,7 @@ def add_to_cart(request):
         messages.success(request, "Item added to cart successfully!")
         return redirect('product_details', product_id=variant.product.id)
 
-    return redirect('home')  # Replace with your homepage view
+    return redirect('home') 
 
 
 #-------------------------- cart show ----------------------------------------------------
@@ -62,9 +66,11 @@ def add_to_cart(request):
 
 @login_required
 def cart_show(request):
+    storage = messages.get_messages(request)
+    storage.used = True
     try:
         cart = Cart.objects.filter(user_id=request.user).first()
-        cart_items = cart.items.all() if cart else []
+        cart_items = cart.items.filter(variant__product__is_listed=True) if cart else []
         shipping = 150 if cart and cart.total_amount_without_coupon < 1000 else 0
 
         return render(request, 'user/cart_show.html', {
@@ -100,6 +106,8 @@ def update_cart_total(cart):
 
 @login_required
 def update_cart_item_quantity(request):
+    storage = messages.get_messages(request)
+    storage.used = True
     if request.method == 'POST':
         cart_item_id = request.POST.get('cart_item_id')
         action = request.POST.get('action')  # 'increment' or 'decrement'
@@ -114,12 +122,14 @@ def update_cart_item_quantity(request):
                 if cart_item.quantity < 5:
                     cart_item.quantity += 1
                 else:
-                    return JsonResponse({'error': 'Maximum quantity of 5 reached'}, status=400)
+                    # return JsonResponse({'error': 'Maximum quantity of 5 reached'}, status=400)
+                    messages.error(request, "Maximum quantity of 5 reached!")
             elif action == 'decrement':
                 if cart_item.quantity > 1:
                     cart_item.quantity -= 1
                 else:
-                    return JsonResponse({'error': 'Minimum quantity is 1'}, status=400)
+                    # return JsonResponse({'error': 'Minimum quantity is 1'}, status=400)
+                    messages.error(request, "Minimum quantity is 1")
 
             # Ensure stock availability
             if cart_item.quantity > cart_item.variant.stock:
@@ -177,101 +187,3 @@ def remove_cart_item(request):
 
 
 #-------------------------- checkout ----------------------------------------------------
-
-
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from django.db import transaction
-from .models import Cart, CartItem
-from order_app.models import Order, OrderItems
-from user_profile_app.models import UserProfile
-
-@login_required
-@transaction.atomic
-def checkout(request):
-    try:
-        # Fetch the user's cart
-        cart = Cart.objects.filter(user_id=request.user).first()
-        if not cart or not cart.items.exists():
-            messages.error(request, "Your cart is empty. Please add items to proceed.")
-            return redirect('user:cart_show')
-
-        # Fetch user's saved addresses
-        user_addresses = UserProfile.objects.filter(user=request.user, delete_address=False)
-
-        # Calculate shipping charge
-        shipping = 150 if cart.total_amount_without_coupon < 1000 else 0
-        grand_total = cart.total_amount_without_coupon + shipping
-
-        if request.method == "POST":
-            # Retrieve form data
-            address_id = request.POST.get('address')
-            payment_method = request.POST.get('payment_method')
-
-            
-
-            # Validate form inputs
-            if not address_id:
-                messages.error(request, "Please select a shipping address.")
-                return redirect('user:checkout')
-            if not payment_method:
-                messages.error(request, "Please select a payment method.")
-                return redirect('user:checkout')
-
-            # Fetch selected address
-            
-            
-            address = get_object_or_404(UserProfile, id=address_id, user=request.user, delete_address=False)
-
-            
-
-            # Create an Order
-            order = Order.objects.create(
-                user_id=request.user,
-                address=address,
-                payment_method=payment_method,
-                total_amount=grand_total,
-            )
-
-            
-
-            # Create OrderItems for each cart item
-            for item in cart.items.all():
-                OrderItems.objects.create(
-                    order=order,
-                    product_added=item.variant,
-                    quantity=item.quantity,
-                    size=item.variant.size,
-                    final_product_price=item.sub_total,
-                )
-
-                print(item, "hello-------------------------------------------")
-
-            # Clear the cart
-            cart.items.all().delete()
-            cart.total_amount = 0
-            cart.save()
-
-            messages.success(request, "Your order has been placed successfully!")
-            return redirect('order:order_success')
-
-        # Render the checkout page
-        return render(request, 'user/checkout.html', {
-            'cart': cart,
-            'cart_items': cart.items.all(),
-            'shipping': shipping,
-            'grand_total': grand_total,
-            'user_addresses': user_addresses,
-        })
-
-    except Exception as e:
-        messages.error(request, f"An error occurred: {str(e)}")
-        return render(request, 'user/checkout.html', {'error': str(e)})
-    
-
-
-
-
-
-

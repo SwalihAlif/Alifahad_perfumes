@@ -35,6 +35,7 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Sum, Count
+from .tasks import send_purchase_email, send_invoice_email
 
 from django.conf import settings
 import razorpay
@@ -134,6 +135,9 @@ def checkout(request):
                         status="Order Pending"
                     )
                     print(f"this is -------------------------------------- order{order}")
+                    # Use Celery to send email notifications
+                    send_purchase_email.delay(request.user.id, order.serial_number)
+                    send_invoice_email.delay(request.user.id, order.serial_number)
 
                     if payment_method == 'razorpay':
                         # Deduct stock for Razorpay payment method
@@ -393,6 +397,17 @@ def download_invoice(request, order_id):
     except Order.DoesNotExist:
         return redirect('user:order_success')  # Redirect to order success page if order does not exist
 
+
+#---------------------------- for generating invoice with celery ------------------------------------------------------------------
+@login_required(login_url='login')
+def view_invoice(request, order_id):
+    try:
+        # Get the specified order for the user
+        order = get_object_or_404(Order, serial_number=order_id, user=request.user)
+        context = {'order': order}
+        return render(request, 'user/invoice_template.html', context)
+    except Order.DoesNotExist:
+        return redirect('user:order_success')  # Redirect to order success page if order does not exist
 
 #---------------------------- Razorpay payment handler ------------------------------------------------------------------
 

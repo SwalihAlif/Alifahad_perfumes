@@ -32,6 +32,8 @@ urlpatterns = [
     path('wishlist/', include('wishlist_app.urls')),
     path('wallet/', include('wallet_app.urls')),
     path('review/', include('review_app.urls')),
+    path('chat/', include('chat.urls')),
+    path('django-rq/', include('django_rq.urls')),
 
     path('', views.redirect_to_home), 
 ]

@@ -253,7 +253,7 @@
                                 <div class="text-center p-4 border rounded bg-light">
                                     <h4 class="display-4 mb-1">{{ average_rating|default:"0.0" }}</h4>
                                     <div class="stars-outer mb-2">
-                                        <div class="stars-inner" style="width: {{ average_rating_percentage }}%"></div>
+                                        <div class="stars-inner" style="width: {{ rating_percentage }}%"></div>
                                     </div>
                                     <p class="text-muted mb-0">Based on {{ total_reviews }} reviews</p>
                                 </div>
@@ -264,9 +264,9 @@
                                     <div class="rating-bar d-flex align-items-center mb-3">
                                         <span class="mr-3" style="min-width: 60px">{{ i }} stars</span>
                                         <div class="progress flex-grow-1">
-                                            <div class="progress-bar bg-warning" style="width: {{ rating_percentages }}%"></div>
+                                            <div class="progress-bar bg-warning" style="width: {{ rating_percentage }}%">hh</div>
                                         </div>
-                                        <span class="ml-3" style="min-width: 40px">{{ rating_counts }}</span>
+                                        <span class="ml-3" style="min-width: 40px">{{ rating_count }}</span>
                                     </div>
                                     {% endfor %}
                                 </div>
@@ -292,9 +292,9 @@
                                         <small class="text-muted">{{ review.created_at|date:"F d, Y" }}</small>
                                     </div>
                                     <h5 class="mb-2">{{ review.title }}</h5>
-                                    <p class="mb-2">{{ review.comment }}</p>
+                                    <p class="mb-2">{{ review.content }}</p>
                                     <div class="d-flex align-items-center">
-                                        <small class="text-muted">By {{ review.user.name }}</small>
+                                        <small class="text-muted">By {{ review.user.username }}</small>
                                         {% if review.verified_purchase %}
                                         <span class="badge badge-verified ml-2">Verified Purchase</span>
                                         {% endif %}

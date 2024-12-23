@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .views import order_detail_view, dashboard_view
+from .views import order_detail_view, dashboard_view, view_invoice
 
 
 app_name = 'order'  # Defining the app namespace
@@ -13,6 +13,7 @@ urlpatterns = [
     # Order success page
     path('order-success/', views.order_success, name='order_success'),
     path('download-invoice/<int:order_id>/', views.download_invoice, name='download_invoice'),
+    path('invoice/<int:order_id>/', view_invoice, name='view_invoice'), # generating invoice for celery----
     path('all-orders/', views.all_orders, name='all_orders'),
     path('order/<int:serial_number>/', views.order_detail, name='order_detail'),
     path('order/cancel/<str:order_id>/', views.cancel_order, name='cancel_order'),

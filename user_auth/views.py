@@ -110,6 +110,7 @@ from django.utils import timezone
 from datetime import timedelta
 import random
 import re
+import os
 
 def generate_otp():
     return random.randint(100000, 999999)
@@ -117,8 +118,9 @@ def generate_otp():
 def send_otp_email(email, otp):
     subject = 'Your OTP Code'
     message = f'Your OTP code is: {otp}'
+    sender_email = os.getenv('EMAIL_HOST_USER')
     try:
-        send_mail(subject, message, 'forcheckingswalih@gmail.com', [email])
+        send_mail(subject, message, sender_email, [email])
         return True
     except Exception as e:
         print(f"Error sending email: {e}")

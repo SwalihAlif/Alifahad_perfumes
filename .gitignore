@@ -1,21 +1,10 @@
-# Python bytecode files
+# Python Bytecode
 *.pyc
 *.pyo
+*.pyd
 __pycache__/
 
-# Django specific
-*.log
-*.pot
-*.pyc
-*.db
-*.sqlite3
-*.sqlite3-journal
-db.sqlite3
-media/
-static/
-staticfiles/
-
-# Virtual environment
+# Virtual Environments
 .venv/
 venv/
 env/
@@ -23,29 +12,54 @@ ENV/
 env.bak/
 venv.bak/
 
-# IDEs and Editors
-.idea/
-.vscode/
-*.swp
-
-# Django migration files
+# Django Specific
 *.log
-*.bak
-*.sql
+*.pot
+*.sqlite3
+*.sqlite3-journal
+db.sqlite3
 
-# Configuration and Secret Files
+# User Uploaded Content
+media/
+MEDIA_ROOT/
+
+# Static Files
+staticfiles/
+STATIC_ROOT/
+
+static/
+
+# Environment Variables and Secrets
 .env
 *.env
 *.local
 *.json
 *.yml
 
-# Cloudinary configuration files (if applicable)
+# Cloudinary Cache and Configuration
 cloudinary/
+cloudinary_cache/
 
-# PyCharm
-*.iml
+# Task Queue (e.g., Celery)
+celerybeat-schedule
+*.celerybeat
+celery.log
 
-# System Files
+# IDE and Editor Files
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+
+# OS-Specific Files
 .DS_Store
 Thumbs.db
+
+# Miscellaneous
+*.bak
+*.swp
+*.swo
+
+# Node Modules (if using Node.js for assets)
+node_modules/
+

@@ -86,7 +86,7 @@
                             </div>
                         </div>
                         <div class="mt-3 mt-md-0">
-                            {% if item.status == "Order Pending" %}
+                            {% if item.status == "Pending" %}
                                 <form method="post" class="d-inline-block" action="{% url 'order:cancel_order' order.serial_number %}">
                                     {% csrf_token %}
                                     <input type="hidden" name="cancel_order_item_id" value="{{ item.id }}">
@@ -95,7 +95,7 @@
                                         <button type="submit" class="btn btn-warning btn-sm">Cancel Order</button>
                                     </a>
                                 </form>
-                            {% elif item.status == "Order confirmed" %}
+                            {% elif item.status == "Confirmed" %}
                                 <form method="post" class="d-inline-block">
                                     {% csrf_token %}
                                     <input type="hidden" name="cancel_order_item_id" value="{{ item.id }}">

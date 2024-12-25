@@ -37,6 +37,7 @@ from django.db import transaction
 from django.db.models import Sum, Count
 from .tasks import send_purchase_email, send_invoice_email
 
+
 from django.conf import settings
 import razorpay
 
@@ -72,6 +73,7 @@ def checkout(request):
                 data = json.loads(request.body.decode("utf-8"))
                 address_id = data.get("address_id")
                 payment_method = data.get("payment_method")
+                wallet_amount = Decimal(data.get("wallet_amount", 0))
                 coupon_code = data.get("coupon_code")
 
                 if not address_id or not payment_method:
@@ -104,6 +106,23 @@ def checkout(request):
                     except Coupon.DoesNotExist:
                         return JsonResponse({'error': 'Invalid coupon code'}, status=400)
                     
+                # Wallet logic
+                if wallet_amount:
+                    if wallet_amount > wallet.balance:
+                        return JsonResponse({'error': 'Insufficient wallet balance'}, status=400)
+                    total -= wallet_amount
+                    wallet_amount = float(wallet_amount)
+                    wallet.balance -= wallet_amount
+                    wallet.save()
+                    WalletTransactions.objects.create(
+                        user=request.user,
+                        wallet=wallet,
+                        amount=wallet_amount,
+                        transaction_type=WalletTransactions.SPENT,
+                        description=f"Spent for spliting payment"
+                    )
+
+                    
                 # Ensure total is never less than zero 
                 total = max(total, Decimal('0.00'))
 
@@ -131,13 +150,11 @@ def checkout(request):
                         address=address,
                         payment_method=payment_method,
                         coupon_discount = discount,
+                        wallet_deduction=wallet_amount if wallet_amount else Decimal('0.00'),
                         total_amount=total,
                         status="Order Pending"
                     )
-                    print(f"this is -------------------------------------- order{order}")
-                    # Use Celery to send email notifications
-                    send_purchase_email.delay(request.user.id, order.serial_number)
-                    send_invoice_email.delay(request.user.id, order.serial_number)
+                    
 
                     if payment_method == 'razorpay':
                         # Deduct stock for Razorpay payment method
@@ -204,6 +221,9 @@ def checkout(request):
                             )
                         else:
                             return JsonResponse({"error": "Not enough funds in wallet."}, status=400)
+                        print(f"this is -------------------------------------- order{order}")
+                        
+                        
 
                     # Deduct stock for COD and Wallet payment methods
                     for item in cart_items:
@@ -239,9 +259,13 @@ def checkout(request):
         'delivery_charge': shipping,
         'wallet': wallet,
         'available_coupons': available_coupons,
+        'razorpay_key_id': settings.RAZORPAY_KEY_ID,
+        
         
     }
     return render(request, 'user/checkout.html', context)
+
+
 
       
 #--------------------------- Apply coupon -----------------------------------------------------------------------
@@ -277,6 +301,45 @@ def apply_coupon(request):
         
     return JsonResponse({'valid': False, 'error': 'Invalid request method'})
 
+#---------------------------- apply wallet amount --------------------------------------------------------------------
+
+logger = logging.getLogger(__name__)
+
+@login_required(login_url='login')
+@csrf_exempt
+def apply_wallet_amount(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            wallet_amount = Decimal(data.get('wallet_amount', '0'))
+            total_amount = Decimal(data.get('total_amount', '0'))  # Use the full total amount directly
+           
+
+            logger.info(f"Received wallet amount: {wallet_amount}")
+            logger.info(f"Received total amount: {total_amount}")
+            
+
+            user = request.user
+            wallet, created = Wallet.objects.get_or_create(user=user)
+
+            if wallet_amount > wallet.balance:
+                logger.error('Insufficient wallet balance')
+                return JsonResponse({'status': 'error', 'message': 'Insufficient wallet balance'}, status=400)
+
+            new_total_amount = total_amount - wallet_amount
+            logger.info(f"New total amount after wallet deduction: {new_total_amount}")
+            
+
+            # Return the new total amount after deducting wallet amount
+            return JsonResponse({'status': 'success', 'new_total_amount': new_total_amount, 'wallet_amount': wallet_amount})
+        except (json.JSONDecodeError, ValueError) as e:
+            logger.error(f"Error processing wallet amount: {e}")
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=400)
+
+
+
+
 
 #------------------------ Order success --------------------------------------------------------------------------------
 
@@ -293,6 +356,7 @@ def order_success(request):
         context = {
             'order': latest_order,
             'order_items': order_items,
+            'total_order_amount': latest_order.total_amount + latest_order.wallet_deduction,
         }
         return render(request, 'user/order_confirm.html', context)
 
@@ -454,10 +518,24 @@ def payment_handler(request):
                     return JsonResponse({
                         'error': 'Payment amount does not match order amount'
                     }, status=400)
+                
+
+                # Check for split payment and verify remaining amount
+                # if order.payment_method == 'split':
+                #     wallet_deduction = Decimal(order.wallet_deduction)
+                #     if int(payment['amount']) != int((order.total_amount - wallet_deduction) * 100):
+                #         logger.error(f"Split payment amount mismatch - Expected: {int((order.total_amount - wallet_deduction) * 100)}, Received: {payment['amount']}")
+                #         return JsonResponse({
+                #             'error': 'Split payment amount does not match remaining amount'
+                #         }, status=400)
 
                 order.payment_id = payment_id  # Add this field to the model
                 order.payment_status = 'Completed'
                 order.save()
+
+                # Use Celery to send email notifications
+                send_purchase_email.delay(request.user.id, order.serial_number)
+                send_invoice_email.delay(request.user.id, order.serial_number)
 
                 return JsonResponse({
                     'success': True,
@@ -484,7 +562,8 @@ def payment_handler(request):
             'details': str(e)
         }, status=500)
 
-    
+
+
 #---------------------------- all orders user side --------------------------------------------------------------------
 
 
@@ -614,7 +693,11 @@ def cancel_order(request, order_id):
                     user=request.user,
                     reason=request.POST.get('reason', 'No reason provided')
                 )
-                total_refund += item.final_product_price * item.quantity  # Add the item's price to the total refund
+                if order.payment_status == 'Completed':
+
+                    total_refund += item.final_product_price * item.quantity  # Add the item's price to the total refund
+                    order.payment_status = 'Refunded'
+                    order.save()
 
         # Update order status if all items are cancelled
         if all(item.status == 'Cancelled' for item in order_items):
@@ -689,7 +772,7 @@ def change_order_status(request, serial_number):
         order.status = status
 
         if status == 'Delivered':
-            order.payment_status = 'completed'
+            order.payment_status = 'Completed'
         order.save()
         messages.success(request, f"Order {order.serial_number} status is changed to {status}")
 
@@ -868,7 +951,7 @@ def top_categories(request):
     context = {
         'top_category': top_category,
     }
-    return render(request, 'admin/top_categories.html', context)
+    return render(request, 'admin/top_categories.html', context) 
 #----------------------------- top products ------------------------------------------------------------------------
 @staff_member_required
 def top_products(request):

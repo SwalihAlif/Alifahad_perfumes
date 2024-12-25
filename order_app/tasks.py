@@ -6,6 +6,7 @@ from .utils import generate_invoice
 
 @shared_task
 def send_purchase_email(user_id, order_id):
+    print('send notificatiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiion is working.................................')
     from django.contrib.auth.models import User
     user = User.objects.get(id=user_id)
     order = Order.objects.get(serial_number=order_id)
@@ -17,6 +18,7 @@ def send_purchase_email(user_id, order_id):
 
 @shared_task
 def send_invoice_email(user_id, order_id):
+    print('senddiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiing invooooooooooooooooooooooooooice is working.............................')
     from django.contrib.auth.models import User
     user = User.objects.get(id=user_id)
     order = Order.objects.get(serial_number=order_id)

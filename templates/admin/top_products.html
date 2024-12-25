@@ -67,37 +67,7 @@
                     <!-- Revenue and Sales Metrics -->
                     <!-- Revenue and Sales Metrics -->
 <div class="row">
-    <!-- Overall Order Amount -->
-    <div class="col-sm-4 grid-margin">
-        <div class="card">
-            <div class="card-body">
-                <h5>Overall Order Amount</h5>
-                <div class="d-flex align-items-center">
-                    <h2 class="mb-0">₹{{ total_sales }}</h2>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Overall Sales Count -->
-    <div class="col-sm-4 grid-margin">
-        <div class="card">
-            <div class="card-body">
-                <h5>Overall Sales Count</h5>
-                <div class="d-flex align-items-center">
-                    <h2 class="mb-0">{{ sales_count }}</h2>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Download Buttons -->
-    <div class="col-sm-4 grid-margin">
-        <div class="card">
-            <div class="card-body d-flex flex-column align-items-end">
-                <a href="{% url 'order:generate_pdf_report' %}" class="btn btn-primary mb-2 w-100" target="_blank">Download Report as PDF</a>
-                <a href="{% url 'order:generate_excel_report' %}" class="btn btn-success w-100" target="_blank">Download Report as Excel</a>
-            </div>
-        </div>
-    </div>
+    
 
 
                         

@@ -10,6 +10,8 @@ urlpatterns = [
     path("checkout/",views.checkout,name='checkout'),
     path('payment_handler/', views.payment_handler, name='payment_handler'),
     path('retry-payment/', views.retry_payment, name='retry_payment'),
+    path('apply-wallet-amount/', views.apply_wallet_amount, name='apply_wallet_amount'),
+
     # Order success page
     path('order-success/', views.order_success, name='order_success'),
     path('download-invoice/<int:order_id>/', views.download_invoice, name='download_invoice'),

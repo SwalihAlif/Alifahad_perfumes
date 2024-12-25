@@ -49,4 +49,19 @@ def submit_review(request):
             return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
         
     return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=400)
-        
+
+
+
+#-------------------------- admin side review -----------------------------------------------------------------------
+from django.shortcuts import render
+from .models import Rating, Review
+
+def ratings_and_reviews_admin(request):
+    ratings = Rating.objects.select_related('user', 'product').all()
+    reviews = Review.objects.select_related('user', 'product', 'rating').all()
+
+    context = {
+        'ratings': ratings,
+        'reviews': reviews,
+    }
+    return render(request, 'admin/custom_ratings_reviews.html', context)

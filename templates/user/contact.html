@@ -612,3 +612,261 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 
 </body>
 </html>
+
+<!-- Update the CSS section -->
+<style>
+    .checkout-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 1rem;
+        display: grid;
+        grid-template-columns: 1.5fr 1fr;
+        gap: 1.5rem;
+        min-height: 100vh;
+    }
+
+    /* Coupon styling */
+    .coupon-container {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        gap: 8px;
+        padding: 10px 0;
+    }
+
+    .coupon-card {
+        min-width: 200px;
+        max-width: 200px;
+        height: 120px;
+        padding: 12px;
+        border-radius: 8px;
+        position: relative;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    .coupon-card:nth-child(3n+1) { background: linear-gradient(45deg, #FFE6E6, #FFB3B3); }
+    .coupon-card:nth-child(3n+2) { background: linear-gradient(45deg, #E6FFE6, #B3FFB3); }
+    .coupon-card:nth-child(3n+3) { background: linear-gradient(45deg, #E6E6FF, #B3B3FF); }
+
+    .coupon-code {
+        font-size: 1rem;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 6px;
+    }
+
+    .coupon-details {
+        font-size: 0.85rem;
+        color: #444;
+        margin: 2px 0;
+    }
+
+    .coupon-expiry {
+        font-size: 0.75rem;
+        color: #666;
+        position: absolute;
+        bottom: 8px;
+        left: 12px;
+    }
+
+    /* Order Summary Updates */
+    .order-summary-details {
+        margin-top: 15px;
+        border-top: 1px solid #eee;
+        padding-top: 15px;
+    }
+
+    .summary-item {
+        display: flex;
+        justify-content: space-between;
+        margin: 5px 0;
+        font-size: 0.9rem;
+    }
+
+    .remove-btn {
+        padding: 2px 8px;
+        background-color: #ff4444;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        cursor: pointer;
+        margin-left: 10px;
+    }
+
+    .applied-discount {
+        background-color: #e8f5e9;
+        padding: 8px;
+        border-radius: 4px;
+        margin: 10px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+</style>
+
+<!-- Add this to the Order Summary section -->
+<div class="order-summary-details">
+    <div id="appliedCouponSection" style="display: none;" class="applied-discount">
+        <span>Applied Coupon: <strong id="appliedCouponCode"></strong></span>
+        <span>Discount: <strong id="appliedDiscount"></strong></span>
+        <button class="remove-btn" onclick="removeCoupon()">Remove</button>
+    </div>
+    
+    <div id="appliedWalletSection" style="display: none;" class="applied-discount">
+        <span>Wallet Amount: <strong id="appliedWalletAmount"></strong></span>
+        <button class="remove-btn" onclick="removeWalletAmount()">Remove</button>
+    </div>
+
+    <div class="summary-item">
+        <span>Subtotal:</span>
+        <span id="subtotal">₹0</span>
+    </div>
+    <div class="summary-item">
+        <span>Shipping:</span>
+        <span>₹150</span>
+    </div>
+    <div class="summary-item">
+        <span>Discount:</span>
+        <span id="discountAmount">-₹0</span>
+    </div>
+    <div class="summary-item">
+        <span>Wallet Amount:</span>
+        <span id="walletDeduction">-₹0</span>
+    </div>
+    <div class="summary-item" style="font-weight: bold;">
+        <span>Total:</span>
+        <span id="totalAmount">₹0</span>
+    </div>
+</div>
+
+<!-- Update the JavaScript section -->
+<script>
+let currentCoupon = null;
+let currentWalletAmount = 0;
+let originalTotal = 0;
+
+// Initialize the original total when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    const totalElement = document.getElementById('totalAmount');
+    originalTotal = parseFloat(totalElement.textContent.replace('₹', ''));
+    updateSummary();
+});
+
+function applyCoupon(couponCode) {
+    if (currentCoupon) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Coupon Already Applied',
+            text: 'Please remove the current coupon before applying a new one.',
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000
+        });
+        return;
+    }
+
+    // Rest of your coupon application logic...
+    // After successful application:
+    currentCoupon = {
+        code: couponCode,
+        discount: discountAmount // Get this from your API response
+    };
+    
+    document.getElementById('appliedCouponSection').style.display = 'flex';
+    document.getElementById('appliedCouponCode').textContent = couponCode;
+    document.getElementById('appliedDiscount').textContent = `₹${discountAmount}`;
+    
+    updateSummary();
+    
+    Swal.fire({
+        icon: 'success',
+        title: 'Coupon Applied!',
+        text: `Discount of ₹${discountAmount} has been applied`,
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000
+    });
+}
+
+function removeCoupon() {
+    Swal.fire({
+        title: 'Remove Coupon?',
+        text: 'Are you sure you want to remove this coupon?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, remove it',
+        cancelButtonText: 'No, keep it'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            currentCoupon = null;
+            document.getElementById('appliedCouponSection').style.display = 'none';
+            updateSummary();
+            
+            Swal.fire({
+                icon: 'success',
+                title: 'Coupon Removed',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000
+            });
+        }
+    });
+}
+
+function addWalletAmount() {
+    const amount = parseFloat(document.getElementById('wallet_amount').value);
+    if (isNaN(amount) || amount <= 0) return;
+    
+    currentWalletAmount = amount;
+    document.getElementById('appliedWalletSection').style.display = 'flex';
+    document.getElementById('appliedWalletAmount').textContent = `₹${amount}`;
+    
+    updateSummary();
+}
+
+function removeWalletAmount() {
+    Swal.fire({
+        title: 'Remove Wallet Amount?',
+        text: 'Are you sure you want to remove the wallet amount?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, remove it',
+        cancelButtonText: 'No, keep it'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            currentWalletAmount = 0;
+            document.getElementById('appliedWalletSection').style.display = 'none';
+            document.getElementById('wallet_amount').value = '';
+            updateSummary();
+            
+            Swal.fire({
+                icon: 'success',
+                title: 'Wallet Amount Removed',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000
+            });
+        }
+    });
+}
+
+function updateSummary() {
+    const subtotal = originalTotal - 150; // Remove shipping from original total
+    const discount = currentCoupon ? currentCoupon.discount : 0;
+    const walletDeduction = currentWalletAmount;
+    
+    let newTotal = subtotal - discount - walletDeduction;
+    if (newTotal < 1000) newTotal += 150; // Add shipping if total is less than 1000
+    
+    document.getElementById('subtotal').textContent = `₹${subtotal.toFixed(2)}`;
+    document.getElementById('discountAmount').textContent = `-₹${discount.toFixed(2)}`;
+    document.getElementById('walletDeduction').textContent = `-₹${walletDeduction.toFixed(2)}`;
+    document.getElementById('totalAmount').textContent = `₹${newTotal.toFixed(2)}`;
+}
+</script>

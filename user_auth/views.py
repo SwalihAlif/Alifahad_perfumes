@@ -19,6 +19,7 @@ from product_app.models import Product
 from django.core.paginator import Paginator
 import datetime
 from django.urls import reverse
+from django.db import models
 
 
 

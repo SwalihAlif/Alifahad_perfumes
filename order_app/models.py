@@ -15,6 +15,7 @@ class Order(models.Model):
         ('COD', 'Cash on Delivery'),
         ('razorpay', 'Razorpay'),
         ('wallet', 'Wallet'),
+        ('split', 'Split Payment'),
 
     ]
 
@@ -53,6 +54,7 @@ class Order(models.Model):
     coupon_discount = models.CharField(max_length=255, null=True, blank=True)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     order_return_requested = models.BooleanField(default=False)
+    wallet_deduction = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     def save(self, *args, **kwargs):
         if not self.pk:

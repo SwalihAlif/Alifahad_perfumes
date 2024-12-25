@@ -68,7 +68,7 @@
             <p><strong>Payment Method:</strong> {{ order.payment_method }}</p>
             <p><strong>Payment Status:</strong> {{ order.payment_status }}</p>
             <p><strong>Total Amount:</strong> Rs. {{ order.total_amount }}</p>
-            <p><strong>Discount:</strong> Rs. {{ order.coupon_discount or 0 }}</p>
+            <p><strong>Discount:</strong> Rs. {{ order.coupon_discount|default:0 }}</p>
         </div>
         
         <div class="shipping-address">

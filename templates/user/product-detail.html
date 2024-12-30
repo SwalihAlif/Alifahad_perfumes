@@ -1,7 +1,9 @@
 {% extends 'user/base.html' %}
 {% load static %}
 
+
 {% block content %}
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -243,66 +245,74 @@
                 </div>
 
                 <!-- Review Section -->
-                <div class="col-12">
-                    <div class="review-container p-4">
-                        <h3 class="mb-4 pb-2 border-bottom">Customer Reviews</h3>
+                <!-- Review Section -->
+                
+<div class="col-12">
+    <div class="review-container p-4">
+        <h3 class="mb-4 pb-2 border-bottom">Customer Reviews</h3>
 
-                        <!-- Overall Rating Summary -->
-                        <div class="row mb-4">
-                            <div class="col-md-4">
-                                <div class="text-center p-4 border rounded bg-light">
-                                    <h4 class="display-4 mb-1">{{ average_rating|default:"0.0" }}</h4>
-                                    <div class="stars-outer mb-2">
-                                        <div class="stars-inner" style="width: {{ rating_percentage }}%"></div>
-                                    </div>
-                                    <p class="text-muted mb-0">Based on {{ total_reviews }} reviews</p>
-                                </div>
-                            </div>
-                            <div class="col-md-8">
-                                <div class="rating-bars p-3">
-                                    {% for i in "54321"|make_list %}
-                                    <div class="rating-bar d-flex align-items-center mb-3">
-                                        <span class="mr-3" style="min-width: 60px">{{ i }} stars</span>
-                                        <div class="progress flex-grow-1">
-                                            <div class="progress-bar bg-warning" style="width: {{ rating_percentage }}%">hh</div>
-                                        </div>
-                                        <span class="ml-3" style="min-width: 40px">{{ rating_count }}</span>
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
+        <!-- Overall Rating Summary -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="text-center p-4 border rounded bg-light">
+                    <h4 class="display-4 mb-1">{{ average_rating|default:"0.0" }}</h4>
+                    <div class="stars-outer mb-2">
+                        <div class="stars-inner" style="width: {{ rating_percentage.5 }}%"></div>
+                    </div>
+                    <p class="text-muted mb-0">Based on {{ total_reviews }} reviews</p>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="rating-bars p-3">
+                    {% for i in "54321"|make_list %}
+                    <div class="rating-bar d-flex align-items-center mb-3">
+                        <span class="mr-3" style="min-width: 60px">{{ i }} stars</span>
+                        <div class="progress flex-grow-1">
+                            <div class="progress-bar bg-warning" style="width: {{ rating_percentage.i|default:0 }}%"></div>
+                            <!-- use load custom filters get_item dot i -->
+                            
                         </div>
+                        <span class="ml-3" style="min-width: 40px">{{ rating_percentage.i|default:0|floatformat:2 }}</span>
+                        
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
 
-                        <!-- Write Review Button -->
-                        <div class="text-center mb-4">
-                            <button class="btn btn-primary btn-write-review" data-toggle="modal" data-target="#reviewModal">
-                                Write a Review
-                            </button>
-                        </div>
+        <!-- Write Review Button -->
+        <div class="text-center mb-4">
+            <button class="btn btn-primary btn-write-review" data-toggle="modal" data-target="#reviewModal">
+                Write a Review
+            </button>
+        </div>
 
-                        <!-- Review List -->
-                        <div class="reviews-list">
-                            {% for review in reviews %}
-                            <div class="review-item">
-                                <div class="review-item-content">
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <div class="stars-outer" style="font-size: 14px;">
-                                            <div class="stars-inner" style="width: {{ review.rating_percentage }}%"></div>
-                                        </div>
-                                        <small class="text-muted">{{ review.created_at|date:"F d, Y" }}</small>
-                                    </div>
-                                    <h5 class="mb-2">{{ review.title }}</h5>
-                                    <p class="mb-2">{{ review.content }}</p>
-                                    <div class="d-flex align-items-center">
-                                        <small class="text-muted">By {{ review.user.username }}</small>
-                                        {% if review.verified_purchase %}
-                                        <span class="badge badge-verified ml-2">Verified Purchase</span>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                            {% endfor %}
+        <!-- Review List -->
+        <div class="reviews-list">
+            {% for review in reviews %}
+            <div class="review-item">
+                <div class="review-item-content">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="stars-outer" style="font-size: 14px;">
+                            <div class="stars-inner" style="width: {{ review.rating_percentage }}%"></div>
                         </div>
+                        <small class="text-muted">{{ review.created_at|date:"F d, Y" }}</small>
+                    </div>
+                    <h5 class="mb-2">{{ review.title }}</h5>
+                    <p class="mb-2">{{ review.content }}</p>
+                    <div class="d-flex align-items-center">
+                        <small class="text-muted">By {{ review.user.username }}</small>
+                        {% if review.verified_purchase %}
+                        <span class="badge badge-verified ml-2">Verified Purchase</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
 
                         <!-- Review Modal -->
                         <div class="modal fade" id="reviewModal" tabindex="-1">
@@ -320,12 +330,19 @@
                                             <div class="form-group">
                                                 <label>Rating</label>
                                                 <div class="rating-input">
-                                                    {% for i in "12345"|make_list %}
-                                                    <input type="radio" id="star{{ i }}" name="rating" value="{{ i }}" required>
-                                                    <label for="star{{ i }}"></label>
+                                                    {% for i in "54321"|make_list %}
+                                                    <input 
+                                                        type="radio" 
+                                                        id="star{{ i }}" 
+                                                        name="score" 
+                                                        value="{{ i }}" 
+                                                        required
+                                                        onclick="trackRating({{i}})">
+                                                    <label for="star{{ i }}"></label> <!-- Display star symbol -->
                                                     {% endfor %}
                                                 </div>
                                             </div>
+                                            
                                             <div class="form-group">
                                                 <label>Title</label>
                                                 <input type="text" class="form-control" name="title" required>
@@ -481,47 +498,88 @@
 
     <!-- Add this to your existing script section -->
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Handle review form submission
-            const reviewForm = document.getElementById('reviewForm');
-            reviewForm.addEventListener('submit', function (e) {
-                e.preventDefault();
+        
+       
+    document.addEventListener('DOMContentLoaded', function () {
+        const ratingCount = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }; // Initialize count for each star
 
-                const formData = new FormData(this);
-                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-                const productId = {{ product.id }};
+        // Handle star clicks to update the count
+        document.querySelectorAll('input[name="score"]').forEach(star => {
+            star.addEventListener('change', function () {
+                const selectedRating = parseInt(this.value); // Get the selected rating
+                ratingCount[selectedRating] += 1; // Increment the count for the clicked star
+                console.log(`Rating ${selectedRating} clicked ${ratingCount[selectedRating]} times`);
 
-                const data = {
-                    product_id: productId,
-                    rating: formData.get('rating'),
-                    title: formData.get('title'),
-                    comment: formData.get('comment'),
-                };
+                // Log the full count for all stars
+                console.log('Full Count:', ratingCount);
 
-                fetch("{% url 'submit_review' %}", {
-                    method: 'POST',
-                    body: JSON.stringify(data),
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': csrfToken,
-                    }
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.status === 'success') {
-                            Swal.fire('Success', 'Your review has been submitted successfully!', 'success');
-                            $('#reviewModal').modal('hide');
-                            location.reload(); // Reload to show the new review
-                        } else {
-                            Swal.fire('Error', data.message, 'error');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        Swal.fire('Error', 'Something went wrong while submitting your review.', 'error');
-                    });
+                // Update the selected score (the one clicked by the user)
+                console.log('Selected score:', selectedRating);
             });
         });
+
+        // Handle review form submission
+        const reviewForm = document.getElementById('reviewForm');
+        reviewForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            const productId = {{ product.id }};  // Pass product ID dynamically
+
+            const selectedScore = formData.get('score'); // Get the selected score from the form
+
+            // Prepare the data to send
+            const data = {
+                product_id: productId,
+                score: selectedScore, // Send the selected score
+                title: formData.get('title'),
+                comment: formData.get('comment'),
+            };
+
+            // Send the data using fetch API
+            fetch("{% url 'submit_review' %}", {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken,
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        Swal.fire('Success', 'Your review has been submitted successfully!', 'success');
+                        $('#reviewModal').modal('hide');
+                        location.reload(); // Reload to show the new review
+                    } else {
+                        Swal.fire('Error', data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire('Error', 'Something went wrong while submitting your review.', 'error');
+                });
+        });
+    });
+
+
+
+    </script>
+    <script>
+        const starCounts = {
+            1: 0,
+            2: 0,
+            3: 0,
+            4: 0,
+            5: 0
+        };
+        function trackRating(rating) {
+            starCounts[rating]++;
+            console.log(`Rating ${rating} clicked ${starCounts[rating]} times`);
+
+            console.log('Full Count: ', starCounts);
+        }
     </script>
 </body>
 

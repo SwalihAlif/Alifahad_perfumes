@@ -28,8 +28,8 @@
             <!-- Messages Area -->
             <div id="chat-log" class="flex-1 p-4 overflow-y-auto space-y-4">
                 {% for message in messages %}
-                <div class="flex {% if message.user.is_staff %}justify-end{% else %}justify-start{% endif %} gap-2">
-                    {% if not message.user.is_staff %}
+                <div class="flex {% if message.user.is_superuser %}justify-end{% else %}justify-start{% endif %} gap-2">
+                    {% if not message.user.is_superuser %} 
                     <!-- User Avatar -->
                     <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
                         <i class="fas fa-user text-gray-600"></i>
@@ -38,21 +38,21 @@
                     
                     <!-- Message Bubble -->
                     <div class="max-w-[70%]">
-                        <div class="{% if message.user.is_staff %}bg-purple-600 text-white rounded-l-lg rounded-tr-lg{% else %}bg-gray-200 text-gray-800 rounded-r-lg rounded-tl-lg{% endif %} px-4 py-2">
+                        <div class="{% if message.user.is_superuser %}bg-purple-600 text-white rounded-l-lg rounded-tr-lg{% else %}bg-gray-200 text-gray-800 rounded-r-lg rounded-tl-lg{% endif %} px-4 py-2">
                             <div class="flex items-center gap-2">
                                 <span class="font-semibold text-sm">{{ message.user.username }}</span>
-                                {% if message.user.is_staff %}
+                                {% if message.user.is_superuser %}
                                 <span class="bg-purple-800 text-xs px-2 py-0.5 rounded-full">Admin</span>
                                 {% endif %}
                             </div>
                             <div class="text-sm mt-1">{{ message.message }}</div>
-                            <div class="text-xs mt-1 {% if message.user.is_staff %}text-purple-200{% else %}text-gray-500{% endif %}">
+                            <div class="text-xs mt-1 {% if message.user.is_superuser %}text-purple-200{% else %}text-gray-500{% endif %}">
                                 {{ message.timestamp|date:"g:i A" }}
                             </div>
                         </div>
                     </div>
 
-                    {% if message.user.is_staff %}
+                    {% if message.user.is_superuser %}
                     <!-- Admin Avatar -->
                     <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
                         <i class="fas fa-shield-alt text-purple-600"></i>
@@ -96,7 +96,9 @@
                 const data = JSON.parse(e.data);
                 const chatLog = document.querySelector('#chat-log');
                 const messageContainer = document.createElement('div');
-                const isStaff = data.is_staff || false;
+                const isStaff = data.is_superuser || false;
+
+                console.log('this is for checking whether admin or user: ', isStaff)
                 
                 messageContainer.className = `flex ${isStaff ? 'justify-end' : 'justify-start'} gap-2`;
                 

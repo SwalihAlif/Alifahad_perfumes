@@ -165,7 +165,7 @@
                                 {% endfor %}
                             </select>
                         </div>
-                        <button type="submit" class="btn btn-update" {% if order.status == 'Cancelled' or order.status == 'Returned' %}disabled{% endif %}>Change Status</button>
+                        <button type="submit" class="btn btn-update" {% if order.status == 'Cancelled' or order.status == 'Delivered' or order.status == 'Returned' %}disabled{% endif %}>Change Status</button>
                     </form>
                     
                 </div>
@@ -213,7 +213,7 @@
                                             {% endif %}
                                             {% endfor %}
                                         </select>
-                                        <button type="submit" class="btn btn-update" {% if item.status == 'Cancelled' or item.status == 'Returned' %}disabled{% endif %}>Update</button>
+                                        <button type="submit" class="btn btn-update" {% if item.status == 'Cancelled' or order.status == 'Delivered' or item.status == 'Returned' %}disabled{% endif %}>Update</button>
                                     </form>
                                     
                                 </td>

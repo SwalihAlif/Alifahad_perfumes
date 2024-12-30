@@ -281,7 +281,7 @@ def user_products(request):
 #=======================================================================================================================================
 
 
-
+from django.shortcuts import get_object_or_404, render
 
 
 def product_details(request, product_id):
@@ -289,49 +289,33 @@ def product_details(request, product_id):
     variants = product.variants.all()
     reviews = Review.objects.filter(product=product)
 
-    average_rating = Rating.objects.filter(product=product).aggregate(Avg('score'))['score__avg'] or 0
-    print(f"average rating -------------------------------------------------------{average_rating}")
-    total_reviews = Rating.objects.filter(product=product).count()
-    print(f"total reviews -------------------------------------------------------{total_reviews}")
+    average_rating = reviews.aggregate(average=Avg('score'))['average'] or 0
 
-    # Calculate rating distribution with percentages
-    rating_distribution = (
-    Rating.objects.filter(product=product)
-    .values('score')
-    .annotate(score_count=Count('id'))
-    )
+    total_reviews = reviews.count()
 
-    total_reviews = sum(item['score_count'] for item in rating_distribution)
+    # Calculate the rating distribution (the count of each rating 1, 2, 3, 4, 5)
+    rating_distribution = reviews.values('score').annotate(count=Count('score')).order_by('-score')
 
-    print(f"rating distribution-------------------------------------------------------{rating_distribution}")
+    rating_percentage = {}
+    for rating in range(1, 6):
+        count = next((item['count'] for item in rating_distribution if item['score'] == rating), 0)
+        percentage = (count / total_reviews * 100) if total_reviews > 0 else 0
+        rating_percentage[rating] = percentage
 
-    # Calculate percentages manually
-    rating_percentage = {
-    item['score']: (item['score_count'] * 100.0 / total_reviews) if total_reviews else 0
-    for item in rating_distribution
-    }
+    print(f"average rating: {average_rating}")
+    print(f"total reviews: {total_reviews}")
+    print(f"rating_distribution: {rating_distribution}")
+    print(f"rating_percentage: {rating_percentage}")
 
-    print(f"rating percentage-------------------------------------------------------{rating_percentage}")
-
-
-
-    
-
-
-    rating_count = {item['score']: item['score_count'] for item in rating_distribution}
-    print(f"rating -------------------------------------------------------{rating_count}")
-
-    
-    
-    
-
-
+    # Set the highest offer for each variant
     for variant in variants:
         variant.highest_offer = max(
             variant.offer_percentage,
             variant.product.offer_percentage,
-            variant.product.category.category_offer)
-        
+            variant.product.category.category_offer
+        )
+
+    # Prepare the context to pass to the template
     context = {
         'product': product,
         'variants': variants,
@@ -342,7 +326,10 @@ def product_details(request, product_id):
         'rating_count': total_reviews,
         'rating_percentage': rating_percentage,
     }
+    
+    # Render the template with the context data
     return render(request, 'user/product-detail.html', context)
+
 
 
 

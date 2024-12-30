@@ -14,8 +14,9 @@ from .models import Rating, Review
 def submit_review(request):
     if request.method == "POST":
         data = json.loads(request.body)
+        print(f"this is daaaaaaaaaaaaaaaaaaaaaaata {data}")
         product_id = data.get('product_id')
-        rating = data.get('rating')
+        score = data.get('score')
         title = data.get('title')
         comment =data.get('comment')
 
@@ -23,18 +24,15 @@ def submit_review(request):
             product = Product.objects.get(id=product_id)
             user = request.user
 
-            rating_obj = Rating.objects.create(
-                product=product,
-                user=user,
-                score=rating
-            )
-
             review_obj = Review.objects.create(
                 product=product,
                 user=user,
                 title=title,
+                score=score,
                 content=comment
             )
+
+            print(review_obj)
 
             response = {
                 'status': 'success',
@@ -64,4 +62,4 @@ def ratings_and_reviews_admin(request):
         'ratings': ratings,
         'reviews': reviews,
     }
-    return render(request, 'admin/custom_ratings_reviews.html', context)
+    return render(request, 'admin/ratings_reviews.html', context)

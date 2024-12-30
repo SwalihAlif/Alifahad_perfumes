@@ -328,11 +328,11 @@
                     </tr>
                     <tr>
                         <td>Coupon discount</td>
-                        <td colspan="2">₹{{ coupon.discount_amount }}</td> 
+                        <td colspan="2" id="couponDiscount">₹0.00</td> 
                     </tr>
                     <tr>
                         <td>Wallet deduction</td>
-                        <td colspan="2">₹{{ coupon.discount_amount }}</td> 
+                        <td colspan="2" id="walletAmount">₹0.00</td> 
                     </tr>
                     <tr>
                         <td><strong>Total</strong></td>
@@ -435,138 +435,6 @@
 
 <script> // for razorpay
 
-// let appliedCouponCode = '';
-// let appliedCouponDiscount = 0; // Store the applied coupon discount
-
-// document.getElementById("couponForm").addEventListener("submit", function(event) {
-//     event.preventDefault();
-//     const couponCode = document.getElementById("couponCode").value;
-//     appliedCouponCode = couponCode;
-
-//     const totalElement = document.getElementById("totalAmount");
-//     const totalAmount = parseFloat(totalElement.textContent.replace('₹', ''));
-//     const totalAmountExcludingShipping = totalAmount - 150; // Assuming shipping is always ₹150
-
-//     console.log('Initial Total Amount:', totalAmount);
-//     console.log('Total Amount Excluding Shipping:', totalAmountExcludingShipping);
-
-//     fetch("{% url 'order:apply_coupon' %}", {
-//         method: 'POST',
-//         headers: {
-//             'Content-Type': 'application/json',
-//             'X-CSRFToken': window.CSRF_TOKEN,
-//         },
-//         body: JSON.stringify({
-//             coupon_code: couponCode,
-//             total_amount_excluding_shipping: totalAmountExcludingShipping
-//         })
-//     })
-//     .then(response => response.json())
-//     .then(data => {
-//         if (data.valid) {
-//             Swal.fire({
-//                 icon: 'success',
-//                 title: 'Coupon Applied',
-//                 text: 'Coupon applied successfully!',
-//                 timer: 2000,
-//                 showConfirmButton: false,
-//             });
-
-//             let total = parseFloat(totalElement.textContent.replace('₹', ''));
-//             const discount = data.discount;
-//             if (data.discount_type === 'percentage') {
-//                 appliedCouponDiscount = total * (discount / 100); // Store the discount
-//                 total -= appliedCouponDiscount;
-//             } else {
-//                 appliedCouponDiscount = discount; // Store the discount
-//                 total -= appliedCouponDiscount;
-//             }
-//             total = Math.max(total, 0);
-
-//             console.log('Applied Coupon Discount:', appliedCouponDiscount);
-//             console.log('Total after Discount:', total);
-
-//             if (total < 1000) {
-//                 total += 150;
-//             }
-
-//             totalElement.textContent = `₹${total.toFixed(2)}`;
-//             console.log('Final Total Amount:', total);
-
-//             // Show the remove button and hide the apply button
-//             document.getElementById("applyCouponBtn").style.display = "none";
-//             document.getElementById("removeCouponBtn").style.display = "inline-block";
-//             document.getElementById("couponCode").disabled = true;
-//         } else {
-//             Swal.fire({
-//                 icon: 'error',
-//                 title: 'Invalid Coupon',
-//                 text: data.error || 'Invalid coupon code!',
-//                 timer: 2000,
-//                 showConfirmButton: false,
-//             });
-//         }
-//     })
-//     .catch(error => {
-//         console.error('Error:', error);
-//         Swal.fire({
-//             icon: 'error',
-//             title: 'Error',
-//             text: 'An error occurred while applying the coupon.',
-//             timer: 2000,
-//             showConfirmButton: false,
-//         });
-//     });
-// });
-
-// document.getElementById("removeCouponBtn").addEventListener("click", function() {
-//     Swal.fire({
-//         title: 'Are you sure?',
-//         text: "Do you want to remove the applied coupon?",
-//         icon: 'warning',
-//         showCancelButton: true,
-//         confirmButtonColor: '#3085d6',
-//         cancelButtonColor: '#d33',
-//         confirmButtonText: 'Yes, remove it!'
-//     }).then((result) => {
-//         if (result.isConfirmed) {
-//             const totalElement = document.getElementById("totalAmount");
-//             let total = parseFloat(totalElement.textContent.replace('₹', ''));
-            
-//             // Add the stored discount back to the total
-//             total += appliedCouponDiscount;
-//             total = Math.max(total, 0);
-
-//             console.log('Applied Coupon Discount:', appliedCouponDiscount);
-//             console.log('Total after removing Discount:', total);
-
-//             if (total < 1000) {
-//                 total += 150;
-//             }
-
-//             totalElement.textContent = `₹${total.toFixed(2)}`;
-//             console.log('Final Total Amount after Removing Coupon:', total);
-
-//             // Reset the coupon form
-//             document.getElementById("couponCode").value = '';
-//             document.getElementById("couponCode").disabled = false;
-//             document.getElementById("applyCouponBtn").style.display = "inline-block";
-//             document.getElementById("removeCouponBtn").style.display = "none";
-
-//             Swal.fire({
-//                 icon: 'success',
-//                 title: 'Coupon Removed',
-//                 text: 'Coupon has been removed successfully.',
-//                 timer: 2000,
-//                 showConfirmButton: false,
-//             });
-
-//             appliedCouponCode = '';
-//             appliedCouponDiscount = 0; // Reset the stored discount
-//         }
-//     });
-// });
-
 let appliedCouponCode = '';
 let appliedCouponDiscount = 0; // Store the applied coupon discount
 
@@ -621,6 +489,8 @@ document.getElementById("couponForm").addEventListener("submit", function(event)
             // if (total < 1000) {
             //     total += 150;
             // }
+
+            document.getElementById("couponDiscount").textContent = `₹${Number(appliedCouponDiscount).toFixed(2)}`;
 
             totalElement.textContent = `₹${total.toFixed(2)}`;
             console.log('Final Total Amount:', total);
@@ -680,6 +550,8 @@ document.getElementById("removeCouponBtn").addEventListener("click", function() 
             } else if (total >= 1000 && (total - appliedCouponDiscount) < 1000) {
                 total += 150;
             }
+
+            document.getElementById("couponDiscount").textContent = `₹0.00`;
 
             totalElement.textContent = `₹${total.toFixed(2)}`;
             console.log('Final Total Amount after Removing Coupon:', total);
@@ -750,6 +622,7 @@ document.getElementById('add_wallet_amount').addEventListener('click', function(
     .then(response => response.json())
     .then(data => {
         if (data.status === 'success') {
+            document.getElementById("walletAmount").textContent = `₹${Number(walletAmount).toFixed(2)}`;
             totalElement.textContent = `₹${newTotalAmount.toFixed(2)}`;
             Swal.fire({
                 title: 'Success!',
@@ -806,6 +679,7 @@ document.getElementById('remove_wallet_amount').addEventListener('click', functi
 
             console.log('Total after removing Discount:', total);
 
+            document.getElementById("walletAmount").textContent = `₹0.00`;
             totalElement.textContent = `₹${total.toFixed(2)}`;
             console.log('Final Total Amount after Removing Coupon:', total);
 

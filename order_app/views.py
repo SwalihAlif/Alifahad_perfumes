@@ -154,6 +154,10 @@ def checkout(request):
                         total_amount=total,
                         status="Order Pending"
                     )
+                    # Use Celery to send email notifications
+                    send_purchase_email.delay(request.user.id, order.serial_number)
+                    send_invoice_email.delay(request.user.id, order.serial_number)
+
                     
 
                     if payment_method == 'razorpay':
@@ -198,7 +202,7 @@ def checkout(request):
                         return JsonResponse(payment_data)
 
                     elif payment_method == "COD":
-                        order.payment_status = "pending"
+                        order.payment_status = "Pending"
                         order.save()
 
                     
@@ -206,7 +210,7 @@ def checkout(request):
                     elif payment_method == "wallet":
                         total = float(total)
                         if wallet.balance >= total:
-                            order.payment_status = "completed"
+                            order.payment_status = "Completed"
                             order.save()
                             wallet.balance -= total
                             wallet.save()
@@ -260,7 +264,6 @@ def checkout(request):
         'wallet': wallet,
         'available_coupons': available_coupons,
         'razorpay_key_id': settings.RAZORPAY_KEY_ID,
-        
         
     }
     return render(request, 'user/checkout.html', context)
@@ -605,6 +608,10 @@ def retry_payment(request):
 
         order.payment_status = 'Completed'
         order.save()
+        # Use Celery to send email notifications
+        send_purchase_email.delay(request.user.id, order.serial_number)
+        send_invoice_email.delay(request.user.id, order.serial_number)
+
 
         # Return the new Razorpay order details
         return JsonResponse({
@@ -695,7 +702,7 @@ def cancel_order(request, order_id):
                 )
                 if order.payment_status == 'Completed':
 
-                    total_refund += item.final_product_price * item.quantity  # Add the item's price to the total refund
+                    total_refund += item.final_product_price * item.quantity + 150 # Add the item's price to the total refund
                     order.payment_status = 'Refunded'
                     order.save()
 
@@ -736,7 +743,7 @@ def order_management(request):
     orders_list = Order.objects.prefetch_related('order_all').order_by('-order_date')
    
 
-    paginator = Paginator(orders_list, 6)
+    paginator = Paginator(orders_list, 20)
     page_number = request.GET.get('page')
     page_orders = paginator.get_page(page_number)
 
@@ -870,8 +877,10 @@ def approve_item_return(request, item_id):
         wallet.balance += retuned_amount
         wallet.save()
 
+        print(f"This is returned amount{retuned_amount}")
+
         WalletTransactions.objects.create(
-            user=request.user,
+            user=order.user_id,
             order=order,
             wallet=wallet,
             amount=retuned_amount,
@@ -897,7 +906,6 @@ def approve_item_return(request, item_id):
 def dashboard_view(request):
 
     
-
 # Filter orders with the status 'Delivered'
     delivered_orders = Order.objects.filter(status='Delivered')
 
@@ -999,22 +1007,53 @@ def top_pincodes(request):
 #----------------------------- monthly orders graph ------------------------------------------------------------------------
 
 
-from django.http import JsonResponse
+# views.py
 from django.db.models import Sum
-from .models import Order
+from django.db.models.functions import TruncDate
+from datetime import datetime, timedelta
+from django.http import JsonResponse
 
-def get_monthly_orders(request, year):
-    orders = Order.objects.filter(order_date__year=year)\
-                          .annotate(month=TruncMonth('order_date'))\
-                          .values('month')\
-                          .annotate(total_orders=Count('serial_number'), total_revenue=Sum('total_amount'))\
-                          .order_by('month')
-    data = {
-        'months': [order['month'].strftime('%B') for order in orders],
-        'total_orders': [order['total_orders'] for order in orders],
-        'total_revenue': [order['total_revenue'] for order in orders]
-    }
-    return JsonResponse(data)
+def get_order_analytics(request):
+    filter_type = request.GET.get('filter', 'year')
+    today = datetime.now().date()
+    
+    if filter_type == 'year':
+        start_date = today - timedelta(days=365)
+    elif filter_type == 'month':
+        start_date = today - timedelta(days=30)
+    elif filter_type == 'week':
+        start_date = today - timedelta(days=7)
+    else:  # today
+        start_date = today
+    
+    orders = Order.objects.filter(
+        order_date__date__gte=start_date,
+        order_date__date__lte=today,
+        status__in=['Delivered', 'Confirmed']  # Only count completed orders
+    ).annotate(
+        date=TruncDate('order_date')
+    ).values('date').annotate(
+        revenue=Sum('total_amount'),
+        count=Count('serial_number')
+    ).order_by('date')
+    
+    dates = []
+    revenues = []
+    order_counts = []
+    
+    for order in orders:
+        dates.append(order['date'].strftime('%Y-%m-%d'))
+        revenues.append(float(order['revenue']))
+        order_counts.append(order['count'])
+    
+    return JsonResponse({
+        'dates': dates,
+        'revenues': revenues,
+        'order_counts': order_counts
+    })
+
+
+
 
 #----------------------------- add address in checkout ------------------------------------------------------------------------
 

@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
@@ -29,38 +30,38 @@
 
     <style>
         /* Basic pagination styling */
-.pagination {
-    display: flex;
-    justify-content: center;
-    padding: 10px 0;
-}
+        .pagination {
+            display: flex;
+            justify-content: center;
+            padding: 10px 0;
+        }
 
-.pagination .step-links a,
-.pagination .step-links span {
-    margin: 0 5px;
-    padding: 8px 16px;
-    text-decoration: none;
-    color: #e6eff9;
-    background-color: #4a4b4d;
-    border: 1px solid #2e2e2f;
-    border-radius: 5px;
-}
+        .pagination .step-links a,
+        .pagination .step-links span {
+            margin: 0 5px;
+            padding: 8px 16px;
+            text-decoration: none;
+            color: #e6eff9;
+            background-color: #4a4b4d;
+            border: 1px solid #2e2e2f;
+            border-radius: 5px;
+        }
 
-.pagination .step-links a:hover {
-    background-color: #272728;
-}
+        .pagination .step-links a:hover {
+            background-color: #272728;
+        }
 
-.pagination .current {
-    margin: 0 5px;
-    padding: 8px 16px;
-    color: #450303;
-    background-color: #3e3e3e;
-    border: 1px solid #2d2e2e;
-    border-radius: 5px;
-}
-
+        .pagination .current {
+            margin: 0 5px;
+            padding: 8px 16px;
+            color: #450303;
+            background-color: #3e3e3e;
+            border: 1px solid #2d2e2e;
+            border-radius: 5px;
+        }
     </style>
 </head>
+
 <body>
     <div class="container-scroller">
         {% include 'admin/sidebar.html' %}
@@ -68,51 +69,44 @@
             {% include 'admin/navbar.html' %}
             <div class="main-panel">
                 <div class="content-wrapper">
-  
+
                     <!-- Revenue and Sales Metrics -->
                     <!-- Revenue and Sales Metrics -->
-<div class="row">
-    <!-- Overall Order Amount -->
-    <div class="col-sm-4 grid-margin">
-        <div class="card">
-            <div class="card-body">
-                <h5>Overall Order Amount</h5>
-                <div class="d-flex align-items-center">
-                    <h2 class="mb-0">₹{{ total_sales }}</h2>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Overall Sales Count -->
-    <div class="col-sm-4 grid-margin">
-        <div class="card">
-            <div class="card-body">
-                <h5>Overall Sales Count</h5>
-                <div class="d-flex align-items-center">
-                    <h2 class="mb-0">{{ sales_count }}</h2>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Download Buttons -->
-    <div class="col-sm-4 grid-margin">
-        <div class="card">
-            <div class="card-body d-flex flex-column align-items-end">
-                <a href="{% url 'order:generate_pdf_report' %}" class="btn btn-primary mb-2 w-100" target="_blank">Download Report as PDF</a>
-                <a href="{% url 'order:generate_excel_report' %}" class="btn btn-success w-100" target="_blank">Download Report as Excel</a>
-            </div>
-        </div>
-    </div>
-
-
-                        
-                        
-                        
-
-
-
-
-                    </div> 
+                    <div class="row">
+                        <!-- Overall Order Amount -->
+                        <div class="col-sm-4 grid-margin">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5>Overall Order Amount</h5>
+                                    <div class="d-flex align-items-center">
+                                        <h2 class="mb-0">₹{{ total_sales }}</h2>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Overall Sales Count -->
+                        <div class="col-sm-4 grid-margin">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5>Overall Sales Count</h5>
+                                    <div class="d-flex align-items-center">
+                                        <h2 class="mb-0">{{ sales_count }}</h2>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Download Buttons -->
+                        <div class="col-sm-4 grid-margin">
+                            <div class="card">
+                                <div class="card-body d-flex flex-column align-items-end">
+                                    <a href="{% url 'order:generate_pdf_report' %}" class="btn btn-primary mb-2 w-100"
+                                        target="_blank">Download Report as PDF</a>
+                                    <a href="{% url 'order:generate_excel_report' %}" class="btn btn-success w-100"
+                                        target="_blank">Download Report as Excel</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
 
 
@@ -124,14 +118,15 @@
                                     <div class="d-flex justify-content-between align-items-center">
                                         <!-- Congratulation Message -->
                                         <div class="alert alert-success mb-0" role="alert">
-                                            <strong>Congratulations Swalih! 🎉</strong> 
+                                            <strong>Congratulations Swalih! 🎉</strong>
                                             You have done a great sale.
                                         </div>
-                    
+
                                         <!-- Buttons -->
                                         <div class="d-flex gap-2">
                                             <a href="{% url 'order:top_categories' %}">
-                                                <button class="btn btn-danger" type="button">Top-Selling Categories</button>
+                                                <button class="btn btn-danger" type="button">Top-Selling
+                                                    Categories</button>
                                             </a>
                                             <a href="{% url 'order:top_products' %}">
                                                 <button class="btn btn-info" type="button">Top-Selling Products</button>
@@ -140,7 +135,8 @@
                                                 <button class="btn btn-warning" type="button">Top Customers</button>
                                             </a>
                                             <a href="{% url 'order:top_pincodes' %}">
-                                                <button class="btn btn-light" type="button">Most Ordered PIN Codes</button>
+                                                <button class="btn btn-light" type="button">Most Ordered PIN
+                                                    Codes</button>
                                             </a>
                                         </div>
                                     </div>
@@ -148,195 +144,30 @@
                             </div>
                         </div>
                     </div>
-                    
-                    
-                    
-    
-                    <!-- Top-Selling Categories -->
-                    
-                    <!-- Top-Selling Products -->
-    
-                    <!-- Top Customers -->
-    
-                    <!-- Orders by Pincode -->
 
-
-
-                    <div class="row">
-                        <div class="col-lg-6 grid-margin stretch-card">
-                            <div class="card" style="height: 400px;">
-                                <div class="card-body">
-                                    <!-- Title and Filters -->
-                                    <div class="d-flex justify-content-between align-items-center mb-3">
-                                        <h4 class="card-title mb-0">Orders Analysis</h4>
-                                        <div class="d-flex">
-                                            <!-- Year Filter -->
-                                            <select class="form-select me-2" id="yearFilter" style="max-width: 120px;">
-                                                <option value="2024" selected>2024</option>
-                                                <option value="2023">2023</option>
-                                                <option value="2022">2022</option>
-                                            </select>
-                                            <!-- Month Filter -->
-                                            <select class="form-select me-2" id="monthFilter" style="max-width: 120px;">
-                                                <option value="" selected>All Months</option>
-                                                <option value="1">January</option>
-                                                <option value="2">February</option>
-                                                <option value="3">March</option>
-                                                <!-- Add all months -->
-                                            </select>
-                                            <!-- Week Filter -->
-                                            <select class="form-select me-2" id="weekFilter" style="max-width: 120px;">
-                                                <option value="" selected>All Weeks</option>
-                                                <option value="1">Week 1</option>
-                                                <option value="2">Week 2</option>
-                                                <option value="3">Week 3</option>
-                                                <!-- Add all weeks -->
-                                            </select>
-                                            <!-- Day Filter -->
-                                            <select class="form-select" id="dayFilter" style="max-width: 120px;">
-                                                <option value="" selected>All Days</option>
-                                                <option value="1">Monday</option>
-                                                <option value="2">Tuesday</option>
-                                                <option value="3">Wednesday</option>
-                                                <!-- Add all days -->
-                                            </select>
-                                        </div>
-                                    </div>
-                    
-                                    <!-- Chart Container -->
-                                    <div class="chart-container" style="position: relative; height: 300px;">
-                                        <canvas id="barChart" style="height: 300px; width: 100%;"></canvas>
-                                        <div id="noDataBar" class="no-data-message" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
-                                            <h6>No data available for the selected filters.</h6>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <!-- Add this to your dashboard content section -->
+<div class="row">
+    <div class="col-12 grid-margin">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="card-title">Order Analytics</h4>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-primary" onclick="updateChart('year')">Year</button>
+                        <button type="button" class="btn btn-primary" onclick="updateChart('month')">Month</button>
+                        <button type="button" class="btn btn-primary" onclick="updateChart('week')">Week</button>
+                        <button type="button" class="btn btn-primary" onclick="updateChart('today')">Today</button>
                     </div>
-                    
-                    <!-- Script for Filters and Graph -->
-                    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-                    <script>
-                        const ctx = document.getElementById('barChart').getContext('2d');
-                        const barChart = new Chart(ctx, {
-                            type: 'bar',
-                            data: {
-                                labels: [], // Labels to be updated dynamically
-                                datasets: [{
-                                    label: 'Orders',
-                                    data: [],
-                                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                                    borderColor: 'rgba(54, 162, 235, 1)',
-                                    borderWidth: 1
-                                }]
-                            },
-                            options: {
-                                responsive: true,
-                                scales: {
-                                    y: {
-                                        beginAtZero: true
-                                    }
-                                }
-                            }
-                        });
-                    
-                        // Function to update chart data based on filters
-                        function updateChartData(filters) {
-                            const { year, month, week, day } = filters;
-                    
-                            // Mock data (replace with API/backend call)
-                            const mockData = {
-                                2024: { '1': [12, 19, 3, 5], '2': [8, 15, 10, 7] },
-                                2023: { '1': [5, 10, 15, 20], '2': [25, 30, 18, 14] }
-                            };
-                    
-                            let data = mockData[year] || [];
-                            if (month) data = data[month] || [];
-                            if (week || day) data = []; // Simulate no data for weekly/daily filters
-                    
-                            barChart.data.labels = ['Week 1', 'Week 2', 'Week 3', 'Week 4']; // Update labels dynamically
-                            barChart.data.datasets[0].data = data;
-                            barChart.update();
-                    
-                            document.getElementById('noDataBar').style.display = data.length ? 'none' : 'block';
-                        }
-                    
-                        // Event listeners for filters
-                        document.getElementById('yearFilter').addEventListener('change', () => {
-                            const filters = getFilters();
-                            updateChartData(filters);
-                        });
-                    
-                        document.getElementById('monthFilter').addEventListener('change', () => {
-                            const filters = getFilters();
-                            updateChartData(filters);
-                        });
-                    
-                        document.getElementById('weekFilter').addEventListener('change', () => {
-                            const filters = getFilters();
-                            updateChartData(filters);
-                        });
-                    
-                        document.getElementById('dayFilter').addEventListener('change', () => {
-                            const filters = getFilters();
-                            updateChartData(filters);
-                        });
-                    
-                        // Helper function to get selected filters
-                        function getFilters() {
-                            return {
-                                year: document.getElementById('yearFilter').value,
-                                month: document.getElementById('monthFilter').value,
-                                week: document.getElementById('weekFilter').value,
-                                day: document.getElementById('dayFilter').value
-                            };
-                        }
-                    
-                        // Initialize chart with default filters
-                        updateChartData({ year: '2024', month: '', week: '', day: '' });
-                    </script>
-                    
-                    
-    
-                    <!-- Monthly Orders for 2024 -->
-                    <div class="row">
-                        <div class="col-lg-6 grid-margin stretch-card">
-                            <div class="card" style="height: 300px;">
-                                <div class="card-body d-flex justify-content-between align-items-center">
-                                    <h4 class="card-title mb-0">Monthly Orders for 2024</h4>
-                                    <select class="form-select" id="yearFilter" style="max-width: 150px;">
-                                        <option value="2024" selected>2024</option>
-                                        <option value="2023">2023</option>
-                                        <option value="2022">2022</option>
-                                        <!-- Add more years as needed -->
-                                    </select>
-                                </div>
-                                <div class="chart-container" style="position: relative; height: 250px;">
-                                    <canvas id="barChart" style="height: 250px; width: 100%;"></canvas>
-                                    <div id="noDataBar" class="no-data-message" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
-                                        <h6>No data available for this year.</h6>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    
-                    
-                    
-                        <!-- Top-Selling Categories Pie Chart -->
-                        <div class="col-lg-6 grid-margin stretch-card">
-                            <div class="card" style="height: 300px;">
-                                <div class="card-body d-flex justify-content-center align-items-center flex-column">
-                                    <h4 class="card-title mb-3">Top-Selling Categories</h4>
-                                    <canvas id="pieChart" style="height: 250px; width: 100%;"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
+                </div>
+                <canvas id="orderAnalyticsChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
                 </div>
                 <!-- content-wrapper ends -->
-    
+
                 <!-- Footer -->
                 <footer class="footer">
                     <div class="d-sm-flex justify-content-center justify-content-sm-between">
@@ -344,7 +175,8 @@
                             Copyright © bootstrapdash.com 2020
                         </span>
                         <span class="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">
-                            Free <a href="https://www.bootstrapdash.com/bootstrap-admin-template/" target="_blank">Bootstrap admin templates</a> from Bootstrapdash.com
+                            Free <a href="https://www.bootstrapdash.com/bootstrap-admin-template/"
+                                target="_blank">Bootstrap admin templates</a> from Bootstrapdash.com
                         </span>
                     </div>
                 </footer>
@@ -354,7 +186,7 @@
         </div>
         <!-- page-body-wrapper ends -->
     </div>
-    
+
     <!-- container-scroller -->
     <!-- plugins:js -->
     <script src="{% static 'admin/vendors/js/vendor.bundle.base.js' %}"></script>
@@ -376,145 +208,81 @@
     <!-- Custom js for this page -->
     <script src="{% static 'admin/js/dashboard.js' %}"></script>
     <!-- End custom js for this page -->
-    
-    
 
-<!-- Chart.js Configuration -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const ctx = document.getElementById('barChart').getContext('2d');
-    const noDataBar = document.getElementById('noDataBar');
-    const yearFilter = document.getElementById('yearFilter');
-
-    let barChart;
-
-    function fetchData(year) {
-        const url = "{% url 'order:get_monthly_orders' 0 %}".replace(0, year);  // Django template tag for URL
-        fetch(url)
-            .then(response => response.json())
-            .then(data => {
-                if (data.total_orders.length === 0) {
-                    noDataBar.style.display = 'block';
-                    if (barChart) {
-                        barChart.destroy();
-                    }
-                } else {
-                    noDataBar.style.display = 'none';
-                    if (barChart) {
-                        barChart.destroy();
-                    }
-                    barChart = new Chart(ctx, {
-                        type: 'bar',
-                        data: {
-                            labels: data.months,
-                            datasets: [{
-                                label: 'Total Orders',
-                                data: data.total_orders,
-                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                                borderColor: 'rgba(54, 162, 235, 1)',
-                                borderWidth: 1
-                            }, {
-                                label: 'Total Revenue',
-                                data: data.total_revenue,
-                                backgroundColor: 'rgba(255, 159, 64, 0.2)',
-                                borderColor: 'rgba(255, 159, 64, 1)',
-                                borderWidth: 1
-                            }]
-                        },
-                        options: {
-                            scales: {
-                                y: {
-                                    beginAtZero: true
-                                }
-                            }
-                        }
-                    });
-                }
-            });
-    }
-
-    yearFilter.addEventListener('change', function () {
-        const selectedYear = this.value;
-        fetchData(selectedYear);
-    });
-
-    fetchData(yearFilter.value);
-});
-</script>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-    const ctx = document.getElementById('pieChart').getContext('2d');
-
-    function fetchTopCategories() {
-        const url = "{% url 'order:get_top_selling_categories' %}"; // Replace with your URL pattern
-
-        fetch(url)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.sales.length === 0) {
-                    console.log('No data available for top-selling categories.');
-                    return;
-                }
-
-                new Chart(ctx, {
-                    type: 'pie',
-                    data: {
-                        labels: data.categories, // Category names
-                        datasets: [{
-                            label: 'Top-Selling Categories',
-                            data: data.sales, // Sales data
-                            backgroundColor: [
-                                'rgba(255, 99, 132, 0.2)',
-                                'rgba(54, 162, 235, 0.2)',
-                                'rgba(255, 206, 86, 0.2)',
-                                'rgba(75, 192, 192, 0.2)',
-                                'rgba(153, 102, 255, 0.2)'
-                            ],
-                            borderColor: [
-                                'rgba(255, 99, 132, 1)',
-                                'rgba(54, 162, 235, 1)',
-                                'rgba(255, 206, 86, 1)',
-                                'rgba(75, 192, 192, 1)',
-                                'rgba(153, 102, 255, 1)'
-                            ],
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'top',
-                            }
-                        }
-                    }
-                });
-            })
-            .catch(error => {
-                console.error('Error fetching top-selling categories:', error);
-            });
-    }
-
-    // Fetch data and render chart
-    fetchTopCategories();
-});
-
-</script>
-
-    
-
-
-
-
-
+    <!-- Chart.js Configuration -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 </body>
+
 </html>
+
+
+
+<script>
+    let analyticsChart;
+    
+    function initChart() {
+        const ctx = document.getElementById('orderAnalyticsChart').getContext('2d');
+        analyticsChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Revenue (₹)',
+                    data: [],
+                    borderColor: '#4CAF50',
+                    yAxisID: 'y',
+                }, {
+                    label: 'Orders',
+                    data: [],
+                    borderColor: '#2196F3',
+                    yAxisID: 'y1',
+                }]
+            },
+            options: {
+                responsive: true,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                scales: {
+                    y: {
+                        type: 'linear',
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Revenue (₹)'
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Number of Orders'
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    async function updateChart(filter) {
+        try {
+            const response = await fetch(`{% url 'order:order-analytics' %}?filter=${filter}`);
+            const data = await response.json();
+            
+            analyticsChart.data.labels = data.dates;
+            analyticsChart.data.datasets[0].data = data.revenues;
+            analyticsChart.data.datasets[1].data = data.order_counts;
+            analyticsChart.update();
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    }
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        initChart();
+        updateChart('month');
+    });
+    </script>

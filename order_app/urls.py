@@ -33,7 +33,7 @@ urlpatterns = [
     path('approve_item_return/<int:item_id>/', views.approve_item_return, name='approve_item_return'),
 
     path('dashboard/', dashboard_view, name='dashboard'),
-    path('get_monthly_orders/<int:year>/', views.get_monthly_orders, name='get_monthly_orders'),
+    path('order-analytics/', views.get_order_analytics, name='order-analytics'),
     path('get_top_selling_categories/', views.get_top_selling_categories, name='get_top_selling_categories'),
     path('generate-pdf/', views.generate_pdf_report, name='generate_pdf_report'),
     path('generate-excel/', views.generate_excel_report, name='generate_excel_report'),

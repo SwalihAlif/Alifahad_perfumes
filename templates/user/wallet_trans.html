@@ -36,6 +36,8 @@
                                                     bg-danger
                                                 {% elif transaction.transaction_type == 'earned' %}
                                                     bg-success
+                                                {% elif transaction.transaction_type == 'refund' %}
+                                                    bg-warning
                                                 {% else %}
                                                     bg-secondary
                                                 {% endif %} 

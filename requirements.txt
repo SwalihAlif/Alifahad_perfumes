@@ -1,0 +1,9 @@
+Django>=3.2,<4.0
+gunicorn
+daphne
+cloudinary
+django-cloudinary-storage
+psycopg2-binary
+celery
+redis
+django-rq

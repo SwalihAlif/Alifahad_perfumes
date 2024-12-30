@@ -1,4 +1,4 @@
-Django>=3.2,<4.0
+Django==3.2.13
 gunicorn
 daphne
 cloudinary
@@ -7,3 +7,4 @@ psycopg2-binary
 celery
 redis
 django-rq
+

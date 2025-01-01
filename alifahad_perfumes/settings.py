@@ -70,7 +70,6 @@ INSTALLED_APPS = [
     'coupon_app',
     'wallet_app',
     'wishlist_app',
-    'payment',
     'validator_app',
     'review_app',
     'cloudinary',

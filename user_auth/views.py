@@ -30,9 +30,6 @@ def redirect_to_home(request):
     return redirect('user/home')
 
 #=========================================================================================================================#
-
-
-
 @never_cache
 @login_required
 def user_home(request):
@@ -74,8 +71,6 @@ def user_home(request):
     })
 
 #=========================================================================================================================#
-
-
 def category_products(request, category_id):
     category = get_object_or_404(Category, id=category_id)
     products = Product.objects.filter(category=category, is_listed=True)  # Filter active products
@@ -99,8 +94,6 @@ def shop(request):
         'products': products,
         'query': query
     })
-
-
 #=========================================================================================================================#
 
 from django.shortcuts import render, redirect
@@ -234,7 +227,6 @@ def user_registration(request):
 
     return render(request, 'user/signup.html')
 
-
 #================================================================================================================
 
 from django.contrib.auth import login
@@ -305,7 +297,6 @@ from django.utils import timezone
 
 def resend_otp(request, email):
     if request.method == 'POST':
-        print('post working')
         try:
             # Check if OTP exists and handle cooldown
             try:
@@ -391,8 +382,6 @@ def user_login(request):
             })
 
     return render(request, 'user/login.html')
-
-
 #================================================================================================================
 
 # In your views.py
@@ -404,45 +393,6 @@ def user_logout(request):
     return redirect('home')  # Redirects to the homepage or any other page
 
 #=====================================================================================================
-
-
-# @never_cache
-# def forgot_password(request):
-#     if request.user.is_authenticated:
-#         return redirect('home')
-
-#     if request.method == 'POST':
-#         email = request.POST.get('email')
-#         errors = {}
-
-#         email_pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
-#         if not re.match(email_pattern, email):
-#             errors['email_error'] = 'Invalid email format'
-#         elif not User.objects.filter(email=email).exists():
-#             errors['email_error'] = 'Email does not exist'
-
-#         if errors:
-#             return JsonResponse({'status': 'error', 'errors': errors}, status=400)
-
-#         otp = generate_otp()  # Generate OTP
-
-#         otp_expiry = datetime.datetime.now() + datetime.timedelta(seconds=60)  # 5 minutes expiry
-#         request.session['otp'] = otp
-#         request.session['otp_expiry'] = otp_expiry.timestamp()
-#         request.session['email'] = email
-
-#         send_mail(
-#             'Your OTP Code',
-#             f'Your OTP code is {otp}',
-#             settings.EMAIL_HOST_USER,
-#             [email],
-#             fail_silently=False,
-#         )
-#         return JsonResponse({'status': 'success', 'redirect_url': reverse('otp_verify'),'otp_expiry_time': otp_expiry.timestamp()})
-
-#     return render(request, 'user/forgot/forgot_password.html')
-
-
 import re
 import datetime
 from django.shortcuts import render, redirect
@@ -484,7 +434,6 @@ def forgot_password(request):
     if request.method == 'POST':
         # Retrieve email from POST data
         email = request.POST.get('email', '').strip()
-        print(email)
         errors = {}
 
         # Email validation regex
@@ -520,7 +469,6 @@ def forgot_password(request):
                 [email],
                 fail_silently=False,
             )
-            print(f"Forgott password otp : {otp}")
         except Exception as e:
             # Log the error in a real-world scenario
             return JsonResponse({
@@ -533,11 +481,7 @@ def forgot_password(request):
 
     # Render forgot password template for GET requests
     return render(request, 'user/forgot/forgot_password.html')
-
-
 #------------------------------------------------------------------------------------------------------------------------
-
-
 @never_cache
 def otp_verify(request):
     if request.user.is_authenticated:
@@ -562,8 +506,7 @@ def otp_verify(request):
             return JsonResponse({'status': 'error', 'errors': errors}, status=400)
         
     return render(request, 'user/forgot/reset_otp.html')
-
-
+#----------------------------------------------------------------------------------------------------------------------------
 def reset_resend_otp(request):
     email = request.session.get('email')  # Retrieve email from session
 
@@ -592,7 +535,7 @@ def reset_resend_otp(request):
         
     return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=405)
    
-
+#----------------------------------------------------------------------------------------------------------------------------
 @never_cache
 def reset_new_password(request):
     if request.user.is_authenticated:
@@ -633,3 +576,4 @@ def reset_new_password(request):
         return redirect('login')
 
     return render(request, 'user/forgot/reset_forgot_pass.html')
+#----------------------------------------------------------------------------------------------------------------------------

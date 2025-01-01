@@ -7,6 +7,8 @@ from django.db.models import Q
 
 # Create your views here.
 
+#-------------------- Admin login ------------------------------------------------------------------------------------
+
 def admin_login(request):
     if request.user.is_authenticated and request.user.is_staff:
         return redirect('panel') 
@@ -21,7 +23,7 @@ def admin_login(request):
             return render(request, 'admin/admin_login.html', {'error': 'Invalid credentials or access denied'})
     return render(request, 'admin/admin_login.html')
 
-#-----------------------------------------------------------------------------------------------------------------------------
+#------------ Admin panel ------------------------------------------------------------------------------------------------------
 
 def panel(request):
     if not request.user.is_authenticated or not request.user.is_superuser:
@@ -29,7 +31,7 @@ def panel(request):
     
     return render(request, 'admin/dashboard.html')
 
-#-----------------------------------------------------------------------------------------------------------------------------
+#------------ User management -----------------------------------------------------------------------------------------------------
 
 
 def user_managment(request): 
@@ -58,7 +60,7 @@ def user_managment(request):
 
     return render(request,'admin/users.html',{'users':users, 'query': query})
 
-#-----------------------------------------------------------------------------------------------------------------------------
+#------------- Block and unblock user ----------------------------------------------------------------------------------------------
 
 def block_unblock_user(request, user_id):
     if not request.user.is_authenticated or not request.user.is_superuser:  
@@ -76,7 +78,7 @@ def block_unblock_user(request, user_id):
     return redirect('user_management')  
 
 
-#-----------------------------------------------------------------------------------------------------------------------------
+#------------- Admin logout -------------------------------------------------------------------------------------------------
 
 def admin_logout(request):
     logout(request)

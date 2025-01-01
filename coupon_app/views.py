@@ -73,14 +73,7 @@ def coupon_delete(request, coupon_id):
     messages.success(request, 'Coupon deleted successfully.')
     return redirect('coupon_list')
 #------------------------------ admin coupon management ----------------------------------------------
-#------------------------------ admin coupon management ----------------------------------------------
 
-
-def apply_coupon(request):
-    pass
-
-def remove_coupon(request):
-    pass
 
 
 

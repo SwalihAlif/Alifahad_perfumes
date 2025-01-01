@@ -19,7 +19,7 @@ from django.db.models import CharField
 # Create your views here.
 
 
-
+#=============== Product list =======================================================================================================
 def product_list(request):
     if not request.user.is_authenticated or not request.user.is_superuser:
         return redirect('admin_login')  
@@ -63,9 +63,7 @@ def product_list(request):
         'query': query
     })
 
-
-#=======================================================================================================================================
-
+#================ Edit product ========================================================================================================
 def edit_product(request, product_id):
     if not request.user.is_authenticated or not request.user.is_superuser:
         return redirect('admin_login') 
@@ -87,15 +85,8 @@ def edit_product(request, product_id):
         image_3 = request.FILES.get('image_3')
 
         
-
         if len(description) < 100:
             errors.append('Description must be less than 100 characters.')
-
-        # if float(price) < 0:
-        #     errors.append('Price cannot be negative.')
-
-        # if re.search(r'\s', product_name):
-        #     errors.append('Product name must not contain spaces.')
 
         for image in [image_1, image_2, image_3]:
             if image:
@@ -112,8 +103,6 @@ def edit_product(request, product_id):
         product.product_name = product_name
         product.description = description
         product.category = category_instance
-        # product.available_stock = available_stock
-        # product.price = price
         product.offer_percentage = offer
 
         # Update images if files are provided
@@ -138,7 +127,7 @@ def edit_product(request, product_id):
             
         })
     
-#=======================================================================================================================================
+#==================== Product list and unlist ========================================================================================
   
 def toggle_product_listing(request, product_id):
     if not request.user.is_authenticated or not request.user.is_superuser:
@@ -149,12 +138,7 @@ def toggle_product_listing(request, product_id):
     product.save()
     return redirect('product_management')
 
-#=======================================================================================================================================
-
-
-
-
-
+#============= to ge size choices ====================================================================================================
 def get_size_choices(category_name):
     if category_name == 'attar':
         return Variant.ATTAR
@@ -163,13 +147,13 @@ def get_size_choices(category_name):
     elif category_name == 'incense sticks':
         return Variant.STICKS
     return []
-
+#============= variant list ====================================================================================================
 def variant_list(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     variants = Variant.objects.filter(product=product)
     size_choices = get_size_choices(product.category.category_name.lower())
     return render(request, 'admin/variant_list.html', {'product': product, 'variants': variants, 'size_choices': size_choices})
-
+#============= add variants ====================================================================================================
 def add_variant(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     size_choices = get_size_choices(product.category.category_name.lower())
@@ -183,7 +167,6 @@ def add_variant(request, product_id):
             messages.error(request, "All fields are required.")
             return redirect('variant_list', product_id=product_id)
         
-
         try:
             price = float(price)
             stock = int(stock)
@@ -201,6 +184,7 @@ def add_variant(request, product_id):
 
     return redirect('variant_list', product_id=product_id)
 
+#============= update variant ====================================================================================================
 def update_variant(request, variant_id):
     variant = get_object_or_404(Variant, id=variant_id)
     size_choices = get_size_choices(variant.product.category.category_name.lower())
@@ -238,8 +222,7 @@ def update_variant(request, variant_id):
 
     return render(request, 'admin/variant_update.html', {'variant': variant, 'size_choices': size_choices})
 
-
-#=======================================================================================================================================
+#============ User side products ====================================================================================================
 
 def user_products(request):
     username = request.user.username
@@ -278,12 +261,7 @@ def user_products(request):
         'selected_sort': sort_by,
     })
 
-#=======================================================================================================================================
-
-
-from django.shortcuts import get_object_or_404, render
-
-
+#============== Product details ======================================================================================================
 def product_details(request, product_id):
     product = get_object_or_404(Product, id=product_id, is_listed=True)
     variants = product.variants.all()
@@ -301,11 +279,6 @@ def product_details(request, product_id):
         count = next((item['count'] for item in rating_distribution if item['score'] == rating), 0)
         percentage = (count / total_reviews * 100) if total_reviews > 0 else 0
         rating_percentage[rating] = percentage
-
-    print(f"average rating: {average_rating}")
-    print(f"total reviews: {total_reviews}")
-    print(f"rating_distribution: {rating_distribution}")
-    print(f"rating_percentage: {rating_percentage}")
 
     # Set the highest offer for each variant
     for variant in variants:
@@ -329,9 +302,4 @@ def product_details(request, product_id):
     
     # Render the template with the context data
     return render(request, 'user/product-detail.html', context)
-
-
-
-
-
 #=======================================================================================================================================

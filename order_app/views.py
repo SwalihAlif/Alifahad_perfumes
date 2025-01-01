@@ -36,8 +36,6 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Sum, Count
 from .tasks import send_purchase_email, send_invoice_email
-
-
 from django.conf import settings
 import razorpay
 
@@ -139,7 +137,6 @@ def checkout(request):
                         return JsonResponse({
                             "error": f"Not enough stock for {item.variant.product.product_name} (Size: {item.variant.size})."
                         }, status=400)
-                    print(f"This is ------------------------------------------ varient{variant}")
                     
                 
 
@@ -225,7 +222,6 @@ def checkout(request):
                             )
                         else:
                             return JsonResponse({"error": "Not enough funds in wallet."}, status=400)
-                        print(f"this is -------------------------------------- order{order}")
                         
                         
 
@@ -236,7 +232,6 @@ def checkout(request):
                         variant.save()
 
                         price = item.variant.product_price_after()
-                        print(f"This is ---------------------------------------------- price{price}")
 
                         OrderItems.objects.create(
                             order=order,
@@ -268,12 +263,7 @@ def checkout(request):
     }
     return render(request, 'user/checkout.html', context)
 
-
-
-      
 #--------------------------- Apply coupon -----------------------------------------------------------------------
-
-
 @login_required(login_url='login')
 @csrf_exempt
 def apply_coupon(request):
@@ -305,7 +295,6 @@ def apply_coupon(request):
     return JsonResponse({'valid': False, 'error': 'Invalid request method'})
 
 #---------------------------- apply wallet amount --------------------------------------------------------------------
-
 logger = logging.getLogger(__name__)
 
 @login_required(login_url='login')
@@ -340,12 +329,7 @@ def apply_wallet_amount(request):
             return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=400)
 
-
-
-
-
 #------------------------ Order success --------------------------------------------------------------------------------
-
 @never_cache
 @login_required(login_url='login')
 def order_success(request):
@@ -366,9 +350,6 @@ def order_success(request):
     except Order.DoesNotExist:
         return redirect('user:checkout')
 
-
-
-    
 #---------------------------- User invoice dowload ------------------------------------------------------------------
 from django.http import HttpResponse
 from reportlab.pdfgen import canvas
@@ -477,7 +458,6 @@ def view_invoice(request, order_id):
         return redirect('user:order_success')  # Redirect to order success page if order does not exist
 
 #---------------------------- Razorpay payment handler ------------------------------------------------------------------
-
 logger = logging.getLogger(__name__)
 
 razorpay_client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
@@ -521,16 +501,6 @@ def payment_handler(request):
                     return JsonResponse({
                         'error': 'Payment amount does not match order amount'
                     }, status=400)
-                
-
-                # Check for split payment and verify remaining amount
-                # if order.payment_method == 'split':
-                #     wallet_deduction = Decimal(order.wallet_deduction)
-                #     if int(payment['amount']) != int((order.total_amount - wallet_deduction) * 100):
-                #         logger.error(f"Split payment amount mismatch - Expected: {int((order.total_amount - wallet_deduction) * 100)}, Received: {payment['amount']}")
-                #         return JsonResponse({
-                #             'error': 'Split payment amount does not match remaining amount'
-                #         }, status=400)
 
                 order.payment_id = payment_id  # Add this field to the model
                 order.payment_status = 'Completed'
@@ -565,13 +535,7 @@ def payment_handler(request):
             'details': str(e)
         }, status=500)
 
-
-
 #---------------------------- all orders user side --------------------------------------------------------------------
-
-
-# Initialize logger and Razorpay client
-
 logger = logging.getLogger(__name__)
 razorpay_client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
 
@@ -593,7 +557,6 @@ def retry_payment(request):
             }, status=400)
 
         logger.info(f"Retrying payment for order: {order}")
-        print("hellooooooooooooooooo------------------------------------------------------------retry")
 
 
         # Create a new Razorpay order
@@ -635,9 +598,7 @@ def retry_payment(request):
             'error': str(err),
         }, status=500)
 
-
 #---------------------------- all orders user side --------------------------------------------------------------------
-
 @login_required(login_url='login')
 def all_orders(request):
     try:
@@ -664,24 +625,14 @@ def all_orders(request):
         messages.error(request, f"An error occurred: {str(e)}")
         return redirect('home')
 
-
-    
-
 #---------------------------- Order details ------------------------------------------------------------------
-
-from django.shortcuts import render, get_object_or_404
-from .models import Order
-
 @login_required(login_url='login')
 def order_detail(request, serial_number):
     order = get_object_or_404(Order, serial_number=serial_number, user_id=request.user)
     order_item = OrderItems.objects.filter(order=order)
     return render(request, 'user/order_detail.html', {'order': order, 'order_item': order_item})
 
-
 #---------------------------- Cancel order ------------------------------------------------------------------
-
-
 @login_required(login_url='login')
 def cancel_order(request, order_id):
     try:
@@ -732,11 +683,7 @@ def cancel_order(request, order_id):
     except Exception as e:
         messages.error(request, f"An error occurred: {str(e)}")
         return redirect('order:all_orders')
-
-
 #--------------------------- Admin order management ---------------------------------------------------------------
-
-
 @staff_member_required
 def order_management(request):
 
@@ -768,8 +715,6 @@ def order_detail_view(request, order_serial_number):
     return render(request, 'admin/order_detail.html', context)
 
 #------------------------------ admin order status update ----------------------------------------------------------
-
-
 @staff_member_required
 def change_order_status(request, serial_number):
     order = get_object_or_404(Order, serial_number=serial_number)
@@ -810,10 +755,6 @@ def change_order_status(request, serial_number):
             messages.success(request, f"All items of Order {order.serial_number} have been marked as cancelled and the amount has been refunded to the wallet.")
     
     return redirect('order:order_detail_view', order_serial_number=serial_number)
-
-
-
-
 #------------------------------ admin order status update ----------------------------------------------------------
 @staff_member_required
 def change_order_item_status(request, oid):
@@ -821,12 +762,10 @@ def change_order_item_status(request, oid):
 
     if request.method == 'POST':
         status = request.POST.get('status')
-        print(f"order item status--------------------------------------------- {status}")
         order_item.status = status
         order_id = order_item.order
         order_item.save()
         messages.success(request, f"Order item {order_item}'s status changed to {status}")
-        print(f"this is {order_item}")
 
         order = order_item.order
         all_same_status = all(item.status == status for item in order.order_all.all())
@@ -852,9 +791,6 @@ def request_item_return(request, item_id):
         messages.error(request, "Return request can only be submitted delivered items.")
 
     return redirect('order:order_detail', serial_number=order_item.order.serial_number)
-
-
-
 #----------------------------- Admin approve return request ----------------------------------------------------------------------------------
 @staff_member_required
 @require_POST
@@ -877,8 +813,6 @@ def approve_item_return(request, item_id):
         wallet.balance += retuned_amount
         wallet.save()
 
-        print(f"This is returned amount{retuned_amount}")
-
         WalletTransactions.objects.create(
             user=order.user_id,
             order=order,
@@ -900,8 +834,6 @@ def approve_item_return(request, item_id):
 
     return redirect('order:order_detail_view', order_serial_number=order_item.order.serial_number)
 #----------------------------- Sales report ----------------------------------------------------------------------------------
-
-
 @staff_member_required
 def dashboard_view(request):
 
@@ -946,8 +878,6 @@ def dashboard_view(request):
         'orders_by_pincode': orders_by_pincode,
     }
     return render(request, 'admin/dashboard.html', context)
-
-
 #----------------------------- top categories ------------------------------------------------------------------------
 @staff_member_required
 def top_categories(request):
@@ -997,17 +927,12 @@ def top_pincodes(request):
         .annotate(total_orders=Count('serial_number'))\
         .order_by('-total_orders')[:5] 
 
-    
-
     context = {
         'orders_by_pincode': orders_by_pincode,
     }
     return render(request, 'admin/top_pincodes.html', context)
 
 #----------------------------- monthly orders graph ------------------------------------------------------------------------
-
-
-# views.py
 from django.db.models import Sum
 from django.db.models.functions import TruncDate
 from datetime import datetime, timedelta
@@ -1051,14 +976,7 @@ def get_order_analytics(request):
         'revenues': revenues,
         'order_counts': order_counts
     })
-
-
-
-
 #----------------------------- add address in checkout ------------------------------------------------------------------------
-
-
-
 def get_top_selling_categories(request):
     # Aggregate total sales for each category
     data = (
@@ -1073,7 +991,6 @@ def get_top_selling_categories(request):
     sales = [item['total_sales'] for item in data]
 
     return JsonResponse({'categories': categories, 'sales': sales})
-
 #----------------------------- report download as pdf ------------------------------------------------------------------------
 
 from django.http import HttpResponse
@@ -1174,7 +1091,6 @@ def generate_pdf_report(request):
     # Get the value of the BytesIO buffer and write it to the response.
     buffer.seek(0)
     return HttpResponse(buffer, content_type='application/pdf')
-
 
 #----------------------------- add address in checkout ------------------------------------------------------------------------
 from django.http import HttpResponse
@@ -1492,6 +1408,6 @@ def edit_checkout_address(request, address_id):
 
     return render(request, "user/checkout_address_edit.html", context)
 
-
+#-------------------------------------------------------------------------------------------------------------------------------------
 
 

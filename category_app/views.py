@@ -5,12 +5,11 @@ from .forms import CategoryForm
 from django.contrib import messages
 import re
 from django.core.paginator import Paginator
-
 from django.db.models import Q
 from django.db.models.functions import Cast
 from django.db.models import CharField
 
-
+#--------------------- Admin Category management --------------------------------------------------------------------------------
 def category_management(request):
     if not request.user.is_authenticated or not request.user.is_superuser:
         return redirect('admin_login') 
@@ -57,7 +56,7 @@ def category_management(request):
         'query': query
     })
 
-#--------------------------------------------------------------------------------------------------------------------------------------------
+#------------------- Admin Edit category -----------------------------------------------------------------------------------------------
 
 def edit_category(request, category_id):
     if not request.user.is_authenticated or not request.user.is_superuser:
@@ -76,15 +75,10 @@ def edit_category(request, category_id):
         if Category.objects.exclude(id=category_id).filter(category_name__iexact=category_name).exists():
             errors.append('Category name already exists')
 
-        # if not category_name.isalpha():
-        #     errors.append('Category name must contain characters only')
 
         if not re.match("^[A-Za-z\s]+$", category_name):
             errors.append('Category name must contain letters and spaces only')
             print(errors)
-
-
-
 
         if errors:
             return render(request, 'admin/edit_category.html', {
@@ -116,8 +110,7 @@ def edit_category(request, category_id):
     })
 
 
-#--------------------------------------------------------------------------------------------------------------------------------------------
-
+#------------------ category list and unlist ---------------------------------------------------------------------------------------------
 
 def toggle_category_listing(request, category_id):
     if not request.user.is_authenticated or not request.user.is_superuser:

@@ -6,14 +6,17 @@ from django.http import JsonResponse
 from .models import ChatRoom, ChatMessage
 from .tasks import enqueue_create_chat_message
 
+#-------------- User chat room ----------------------------------------------------------------------------------------------
+
 @login_required
 def chat_room(request, room_name):
     admin_user = request.user
     room, created = ChatRoom.objects.get_or_create(name=room_name, defaults={'admin': admin_user})
 
-    # messages = room.messages.all()
     messages = room.messages.select_related('user').all()
     return render(request, 'user/room.html', {'room_name': room_name, 'messages': messages})
+
+#-------------- Admin chat list ----------------------------------------------------------------------------------------------
 
 @staff_member_required
 def admin_room_list(request):
@@ -21,12 +24,11 @@ def admin_room_list(request):
     context = {'rooms': rooms}
     return render(request, 'admin/admin_rooms_list.html', context)
 
-
+#-------------- Admin chat room ----------------------------------------------------------------------------------------------
 
 @staff_member_required
 def admin_room_chat(request, room_id):
     room = get_object_or_404(ChatRoom, id=room_id)
-    # messages = room.messages.all()
     messages = room.messages.select_related('user').all()
 
     if request.method == "POST":
@@ -39,4 +41,4 @@ def admin_room_chat(request, room_id):
     context = {'room': room, 'messages': messages}
     return render(request, 'admin/admin_room_chat.html', context)
 
-
+#-----------------------------------------------------------------------------------------------------------------------------------------

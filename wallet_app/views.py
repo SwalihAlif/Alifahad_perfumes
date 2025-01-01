@@ -80,8 +80,6 @@ def user_wallet(request):
     }
     return render(request, "user/wallet.html", context)
 
-
-
 #-------------- Wallet Transaction history ----------------------------------------------------------------
 from django.core.paginator import Paginator
 from django.shortcuts import render

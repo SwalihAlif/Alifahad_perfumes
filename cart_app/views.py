@@ -2,22 +2,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from .models import Cart, CartItem, Variant
-from order_app.models import Order, OrderItems
 from django.contrib import messages
-from django.db import transaction
-from user_profile_app.models import UserProfile
-from wallet_app.models import Wallet, WalletTransactions
-import razorpay
-from django.conf import settings
 from django.views.decorators.cache import never_cache
 
 #-------------------------- add to cart ----------------------------------------------------
-
-
-from django.shortcuts import get_object_or_404, redirect
-from django.contrib import messages
-from .models import Variant, Cart, CartItem
-
 @login_required(login_url='login')
 def add_to_cart(request):
     if request.method == 'POST':
@@ -60,11 +48,8 @@ def add_to_cart(request):
 
     return redirect('home') 
 
-
 #-------------------------- cart show ----------------------------------------------------
-
-
-@login_required
+@login_required(login_url='login')
 def cart_show(request):
     storage = messages.get_messages(request)
     storage.used = True
@@ -81,9 +66,8 @@ def cart_show(request):
     except Exception as e:
         return render(request, 'user/cart_show.html', {'error': str(e)})
 
-
-
 #-------------------------- update cart total ----------------------------------------------------
+@login_required(login_url='login')
 def update_cart_total(cart):
     try:
         items = cart.items.all()  # Get all cart items
@@ -99,12 +83,9 @@ def update_cart_total(cart):
     except Exception as e:
         print(f"Error updating cart total: {e}")
 
-
-
-
 #-------------------------- update cart item quantity ----------------------------------------------------
 
-@login_required
+@login_required(login_url='login')
 def update_cart_item_quantity(request):
     storage = messages.get_messages(request)
     storage.used = True
@@ -156,7 +137,7 @@ def update_cart_item_quantity(request):
 
 #-------------------------- remove cart item ----------------------------------------------------
 
-@login_required
+@login_required(login_url='login')
 def remove_cart_item(request):
     if request.method == 'POST':
         cart_item_id = request.POST.get('cart_item_id')
@@ -186,4 +167,4 @@ def remove_cart_item(request):
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
 
-#-------------------------- checkout ----------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------

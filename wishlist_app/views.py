@@ -5,35 +5,11 @@ from cart_app.models import Wishlist, Cart, CartItem
 from product_app.models import Variant, Product
 from cart_app.views import update_cart_total
 from django.contrib import messages
+import json
 
 # Create your views here.
 
 #--------------------------------- Add to wishlist --------------------------------------------------------
-
-# @login_required
-# def add_to_wishlist(request, variant_id):
-#     variant = get_object_or_404(Variant, id=variant_id)
-#     wishlist, created = Wishlist.objects.get_or_create(
-#         user = request.user,
-#         variant = variant
-#     )
-
-#     if created:
-#         response = {
-#             'status': 'success',
-#             'message': f"{variant.product.product_name} ({variant.size}) has been added to your wishlist.",
-#         }
-#     else:
-#         response = {
-#             'status': 'info',
-#             'message': f"{variant.product.product_name} ({variant.size}) is already in your wishlist.",
-#         }
-#     return JsonResponse(response)
-
-from django.shortcuts import get_object_or_404
-from django.http import JsonResponse
-from django.contrib.auth.decorators import login_required
-import json
 @login_required
 def add_to_wishlist(request):
     if request.method == 'POST':  # Ensure POST method
@@ -139,4 +115,4 @@ def move_to_cart(request, variant_id):
     messages.success(request, "Product variant moved from wishlist to cart.")
     return redirect('wishlist')
 
-
+#--------------------------------------------------------------------------------------------------------------------------

@@ -10,103 +10,9 @@ from django.contrib.auth import authenticate, login
 from django.core.exceptions import ValidationError
 from validator_app import views
 from wallet_app.models import Wallet, WalletTransactions
-from order_app.models import Order, OrderItems
-print("Validator App is imported successfully")
-
-
+from order_app.models import Order
 
 # Create your views here.
-
-from django.http import JsonResponse
-import json
-
-# @login_required
-# def order_details(request):
-#     if request.method == 'POST':
-#         try:
-#             data = json.loads(request.body)  # Load JSON from request body
-#             serial_number = data.get('serial_number')
-            
-#             if not serial_number:
-#                 return JsonResponse({'error': 'Order ID is required'}, status=400)
-            
-#             order = Order.objects.prefetch_related('order_all__product_added').get(
-#                 serial_number=serial_number,
-#                 user_id=request.user
-#             )
-            
-#             order_items = order.order_all.all()
-#             items = [
-#                 {
-#                     'name': item.product_added.product.product_name,
-#                     'variant': item.product_added.size,
-#                     'price': float(item.product_added.price),
-#                     'quantity': item.quantity,
-#                     'subtotal': float(item.quantity * item.product_added.price),
-#                     'image_url': item.product_added.product.image_1.url if item.product_added.product.image_1 else ''
-#                 }
-#                 for item in order_items
-#             ]
-            
-#             response_data = {
-#                 'serial_number': order.serial_number,
-#                 'order_date': order.order_date.strftime('%Y-%m-%d %H:%M:%S'),
-#                 'status': order.status,
-#                 'payment_method': order.payment_method,
-#                 'total_amount': float(order.total_amount),
-#                 'items': items
-#             }
-            
-#             return JsonResponse(response_data, status=200)
-        
-#         except Order.DoesNotExist:
-#             return JsonResponse({'error': 'Order not found'}, status=404)
-        
-#         except Exception as e:
-#             return JsonResponse({'error': str(e)}, status=500)
-    
-#     return JsonResponse({'error': 'Invalid request method'}, status=405)
-
-
-
-# #------------------------------------------------cancel order -------------------------------------------
-# from django.http import JsonResponse
-# from django.views.decorators.csrf import csrf_exempt
-# import json
-
-# @csrf_exempt
-# def cancel_order_json(request):
-#     if request.method == "POST":
-#         try:
-#             # Parse the JSON body
-#             data = json.loads(request.body)
-#             order_id = data.get("order_id")
-
-#             # Validate and update the order status
-#             order = Order.objects.get(serial_number=order_id)
-#             if order.status != "Cancelled":
-#                 order.status = "Cancelled"
-#                 order.save()
-#                 return JsonResponse({"success": True, "message": "Order cancelled successfully."})
-#             else:
-#                 return JsonResponse({"success": False, "message": "Order is already cancelled."})
-#         except Order.DoesNotExist:
-#             return JsonResponse({"success": False, "message": "Order not found."}, status=404)
-#         except Exception as e:
-#             return JsonResponse({"success": False, "message": str(e)}, status=500)
-#     else:
-#         return JsonResponse({"success": False, "message": "Invalid request method."}, status=405)
-
-
-
-
-#------------------------------------------------cancel order -------------------------------------------
-
-
-
-
-
-from django.db.models import Sum
 
 @login_required
 @never_cache
@@ -145,7 +51,6 @@ def user_profile(request):
     }
 
     return render(request, 'user/profile_user.html', context)
-
 
 #-------------------------------------------- User Editing Profile ------------------------------------------------------#
 

@@ -6,15 +6,13 @@ from django.contrib.auth.decorators import login_required
 from product_app.models import Product
 from .models import Rating, Review
 
-
 # Create your views here.
-
+#-------------------------- submit review -------------------------------------------------------------------------------------
 @csrf_exempt
 @login_required
 def submit_review(request):
     if request.method == "POST":
         data = json.loads(request.body)
-        print(f"this is daaaaaaaaaaaaaaaaaaaaaaata {data}")
         product_id = data.get('product_id')
         score = data.get('score')
         title = data.get('title')
@@ -32,8 +30,6 @@ def submit_review(request):
                 content=comment
             )
 
-            print(review_obj)
-
             response = {
                 'status': 'success',
                 'message': 'Review submitted successfully!'
@@ -47,9 +43,6 @@ def submit_review(request):
             return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
         
     return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=400)
-
-
-
 #-------------------------- admin side review -----------------------------------------------------------------------
 from django.shortcuts import render
 from .models import Rating, Review
@@ -63,3 +56,4 @@ def ratings_and_reviews_admin(request):
         'reviews': reviews,
     }
     return render(request, 'admin/ratings_reviews.html', context)
+#--------------------------------------------------------------------------------------------------------------------------------------

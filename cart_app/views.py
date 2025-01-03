@@ -67,7 +67,7 @@ def cart_show(request):
         return render(request, 'user/cart_show.html', {'error': str(e)})
 
 #-------------------------- update cart total ----------------------------------------------------
-@login_required(login_url='login')
+
 def update_cart_total(cart):
     try:
         items = cart.items.all()  # Get all cart items
@@ -85,7 +85,7 @@ def update_cart_total(cart):
 
 #-------------------------- update cart item quantity ----------------------------------------------------
 
-@login_required(login_url='login')
+
 def update_cart_item_quantity(request):
     storage = messages.get_messages(request)
     storage.used = True
@@ -137,7 +137,6 @@ def update_cart_item_quantity(request):
 
 #-------------------------- remove cart item ----------------------------------------------------
 
-@login_required(login_url='login')
 def remove_cart_item(request):
     if request.method == 'POST':
         cart_item_id = request.POST.get('cart_item_id')
